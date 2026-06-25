@@ -2,7 +2,7 @@
    CRITICO subpath /forja/: todo se resuelve contra self.registration.scope,
    nunca contra "/". El SW se registra con scope "./" desde index.html. */
 
-const VERSION = 'forja-v3.0.0';
+const VERSION = 'forja-v3.0.1';
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 
