@@ -16,14 +16,27 @@
 <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
 <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+<link rel="preload" href="./fonts/sora-latin-var.woff2" as="font" type="font/woff2" crossorigin />
 <style>
+  /* ---- Tipografia self-host (offline). 2 woff2 variables, subset latin. ---- */
+  @font-face{
+    font-family:'Sora';
+    font-style:normal;
+    font-weight:600 800;            /* cubre 600/700/800 */
+    font-display:swap;
+    src:url('./fonts/sora-latin-var.woff2') format('woff2');
+  }
+  @font-face{
+    font-family:'Manrope';
+    font-style:normal;
+    font-weight:400 700;            /* cubre 400/500/600/700 */
+    font-display:swap;
+    src:url('./fonts/manrope-latin-var.woff2') format('woff2');
+  }
   :root{
     --bg:#0B0F1A; --accent:#2E9BFF; --accent-soft:rgba(46,155,255,.16);
     --glass:rgba(255,255,255,.06); --glass-2:rgba(255,255,255,.09);
-    --stroke:rgba(255,255,255,.10); --txt:#EAF0FA; --muted:#8b97ad;
+    --stroke:rgba(255,255,255,.10); --txt:#EAF0FA; --muted:#A4B0C4; --muted-strong:#C3CDDC;
     --ok:#34d399; --warn:#f5b14c;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -51,7 +64,7 @@
   .ex-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
   .ex-name{font-family:'Sora';font-weight:600;font-size:15px}
   .ex-tag{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;white-space:nowrap}
-  .set{display:grid;grid-template-columns:26px 1fr 1fr 1fr 40px;gap:8px;align-items:center;margin:6px 0}
+  .set{display:grid;grid-template-columns:26px 1fr 1fr 1fr 44px;gap:8px;align-items:center;margin:6px 0}
   .set.warm .si{opacity:.55}
   .snum{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
   .field{position:relative}
@@ -64,7 +77,7 @@
   input.si:focus{border-color:var(--accent);background:var(--accent-soft)}
   .unit{font-size:10px;color:var(--muted);text-align:center;margin-top:2px;letter-spacing:.5px}
   .chk{
-    width:40px;height:40px;border-radius:13px;border:1px solid var(--stroke);background:var(--glass-2);
+    width:44px;height:44px;border-radius:13px;border:1px solid var(--stroke);background:var(--glass-2);
     display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--muted);
     transition:.15s;user-select:none
   }
@@ -85,8 +98,9 @@
   .btn.ok{background:var(--ok);color:#04130c}
   .seg{display:flex;gap:6px;flex-wrap:wrap}
   .seg button{
-    flex:1;min-width:54px;background:var(--glass-2);border:1px solid var(--stroke);color:var(--txt);
-    border-radius:11px;padding:10px 6px;font-family:'Manrope';font-weight:600;font-size:14px;cursor:pointer
+    flex:1;min-width:54px;min-height:44px;background:var(--glass-2);border:1px solid var(--stroke);color:var(--txt);
+    border-radius:11px;padding:10px 6px;font-family:'Manrope';font-weight:600;font-size:14px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center
   }
   .seg button.sel{background:var(--accent);color:#031323;border-color:var(--accent)}
   .pill{display:inline-block;background:var(--accent-soft);color:#bfe0ff;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600}
@@ -138,6 +152,40 @@
   #iosSheet .ic{display:inline-flex;width:22px;height:22px;vertical-align:-5px;margin:0 2px;
     align-items:center;justify-content:center;background:var(--accent-soft);border-radius:6px;color:#bfe0ff}
 
+  /* ===== CTA PRIMARIO "Empezar entreno" ===== */
+  #startCta{
+    position:sticky; top:calc(env(safe-area-inset-top) + 8px); z-index:30;
+    margin-top:14px;
+  }
+  #startCta .btn-start{
+    width:100%; border:0; border-radius:18px; padding:18px;
+    font-family:'Sora'; font-weight:800; font-size:18px; letter-spacing:.3px;
+    background:var(--accent); color:#031323; cursor:pointer;
+    box-shadow:0 12px 30px rgba(46,155,255,.28); transition:transform .08s, background .2s;
+  }
+  #startCta .btn-start:active{ transform:scale(.99) }
+  #startCta .btn-start:disabled{ background:var(--glass-2); color:var(--muted); box-shadow:none; cursor:default }
+  #startCta .cta-sub{ text-align:center; font-size:12px; color:var(--muted); margin-top:7px }
+
+  /* ===== Acordeon accesible (details/summary nativo, estilado) ===== */
+  details.acc{
+    background:var(--glass); border:1px solid var(--stroke); border-radius:20px;
+    backdrop-filter:blur(22px) saturate(140%); -webkit-backdrop-filter:blur(22px) saturate(140%);
+    padding:0; margin-top:14px; box-shadow:0 10px 30px rgba(0,0,0,.25); overflow:hidden;
+  }
+  details.acc>summary{
+    list-style:none; cursor:pointer; user-select:none;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:16px; font-family:'Sora'; font-weight:700; font-size:15px; letter-spacing:.2px;
+  }
+  details.acc>summary::-webkit-details-marker{ display:none }
+  details.acc>summary:focus-visible{ outline:2px solid var(--accent); outline-offset:-2px; border-radius:18px }
+  details.acc>summary .acc-r{ display:flex; align-items:center; gap:8px; color:var(--muted); font-family:'Manrope'; font-weight:600; font-size:12px }
+  details.acc>summary .chev{ transition:transform .2s; color:var(--muted); font-size:13px }
+  details.acc[open]>summary .chev{ transform:rotate(180deg) }
+  details.acc .acc-body{ padding:0 16px 16px }
+  details.acc>summary .acc-badge{ background:var(--accent-soft); color:#bfe0ff; border-radius:999px; padding:2px 9px; font-size:11px; font-weight:700; font-variant-numeric:tabular-nums }
+
   /* ===== Resumen de sesion en "Hoy" ===== */
   .sess-sum{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 4px}
   .sess-chip{font-size:12px;color:var(--muted);background:var(--glass-2);border:1px solid var(--stroke);
@@ -153,15 +201,15 @@
   /* ===== Rampa editable ===== */
   .ramp{margin-top:8px;padding:10px;border:1px dashed var(--stroke);border-radius:14px;background:rgba(255,255,255,.03)}
   .ramp .rh{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
-  .ramp .rrow{display:grid;grid-template-columns:30px 1fr 1fr 34px;gap:8px;align-items:center;margin:5px 0}
-  .ramp .rrow .si{padding:9px 4px;font-size:15px}
+  .ramp .rrow{display:grid;grid-template-columns:30px 1fr 1fr 44px;gap:8px;align-items:center;margin:5px 0}
+  .ramp .rrow .si{padding:12px 4px;font-size:15px}
   .ramp .tag{font-size:10px;font-weight:700;text-align:center;border-radius:8px;padding:5px 0;letter-spacing:.4px}
   .ramp .tag.warmup{color:var(--muted);background:var(--glass-2)}
   .ramp .tag.approach{color:#bfe0ff;background:rgba(46,155,255,.12)}
-  .ramp .rm{width:34px;height:34px;border-radius:10px;border:1px solid var(--stroke);background:var(--glass-2);
-    color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px}
-  .ramp .radd{margin-top:6px;width:100%;background:var(--glass-2);border:1px dashed var(--stroke);color:var(--muted);
-    border-radius:11px;padding:9px;font-family:'Manrope';font-weight:600;font-size:13px;cursor:pointer}
+  .ramp .rm{width:44px;height:44px;border-radius:12px;border:1px solid var(--stroke);background:var(--glass-2);
+    color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px}
+  .ramp .radd{margin-top:6px;width:100%;min-height:44px;background:var(--glass-2);border:1px dashed var(--stroke);color:var(--muted);
+    border-radius:11px;padding:11px;font-family:'Manrope';font-weight:600;font-size:13px;cursor:pointer}
 
   /* ===== Gamificacion ===== */
   .recomp-row{display:flex;gap:14px;align-items:center}
@@ -199,9 +247,14 @@
   .pl-wrap{max-width:540px;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column;padding:14px 18px;min-height:0}
   .pl-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
   .pl-icon{
-    width:42px;height:42px;border-radius:13px;border:1px solid var(--stroke);background:var(--glass-2);
-    color:var(--txt);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none
+    width:48px;height:48px;border-radius:14px;border:1px solid var(--stroke);background:var(--glass-2);
+    color:var(--txt);font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none
   }
+  #pl_exit{
+    min-width:56px;min-height:56px;margin-right:14px;
+    background:transparent;border-color:transparent;color:var(--muted);font-size:22px
+  }
+  #pl_exit:active{background:var(--glass-2);border-color:var(--stroke)}
   .pl-prog{font-family:'Manrope';font-weight:600;font-size:13px;color:var(--muted);text-align:center;letter-spacing:.2px}
   .pl-bar{height:4px;border-radius:999px;background:var(--stroke);margin-top:10px;overflow:hidden}
   .pl-bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s ease;border-radius:999px}
@@ -223,7 +276,7 @@
   .pl-ring.done .prg{stroke:var(--ok)}
   .pl-ring .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
   .pl-num{font-family:'Sora';font-weight:800;font-size:74px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-1px}
-  .pl-numsub{font-family:'Manrope';font-weight:600;font-size:13px;color:var(--muted);margin-top:6px;letter-spacing:.5px}
+  .pl-numsub{font-family:'Manrope';font-weight:600;font-size:13px;color:var(--muted-strong);margin-top:6px;letter-spacing:.5px}
   .pl-ring.pulse .prg{animation:pl-pulse 1.6s ease-in-out infinite}
   @keyframes pl-pulse{0%,100%{opacity:.85}50%{opacity:.35}}
   .pl-exname{font-family:'Sora';font-weight:700;font-size:24px;letter-spacing:-.4px;line-height:1.15;max-width:90%}
@@ -241,7 +294,7 @@
     color:var(--txt);font-size:30px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
   .pl-repval{font-family:'Sora';font-weight:800;font-size:80px;min-width:120px;font-variant-numeric:tabular-nums;line-height:1}
   .pl-bot{display:flex;flex-direction:column;gap:12px;padding-bottom:6px}
-  .pl-next{font-family:'Manrope';font-weight:600;font-size:13px;color:var(--muted);text-align:center;min-height:18px}
+  .pl-next{font-family:'Manrope';font-weight:600;font-size:14px;color:var(--muted-strong);text-align:center;min-height:18px}
   .pl-next b{color:#cfe1f7}
   .pl-go{
     width:100%;height:64px;border:0;border-radius:18px;font-family:'Sora';font-weight:800;font-size:18px;letter-spacing:.3px;
@@ -287,58 +340,75 @@
     </div>
   </div>
 
-  <!-- CHECK-IN -->
-  <div class="card">
-    <h2>¿Cómo estás hoy?</h2>
-    <div class="grid4">
-      <div>
-        <div class="lbl">Horas de sueño</div>
-        <input class="ipt" id="ci_sleep" inputmode="decimal" placeholder="ej. 5.5" />
-      </div>
-      <div>
-        <div class="lbl">Tiempo hoy</div>
-        <div class="seg" id="ci_time">
-          <button data-v="30">30</button><button data-v="45">45</button>
-          <button data-v="60">60</button><button data-v="75">75</button>
-        </div>
-      </div>
-    </div>
-    <div class="lbl" style="margin-top:12px">Energía / ganas</div>
-    <div class="seg" id="ci_energy">
-      <button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button>
-      <button data-v="4">4</button><button data-v="5">5</button>
-    </div>
-    <div class="lbl" style="margin-top:12px">¿Molestia?</div>
-    <div class="seg" id="ci_sore">
-      <button data-v="ninguna">Ninguna</button><button data-v="dedo">Dedo</button>
-      <button data-v="tobillo">Tobillo</button><button data-v="hombro">Hombro</button>
-    </div>
-    <div class="lbl" style="margin-top:12px">Recuperación activa hoy</div>
-    <div class="seg" id="ci_recovery">
-      <button data-v="">No</button><button data-v="nado">Nado</button>
-      <button data-v="spa">Spa</button><button data-v="paseo">Paseo</button>
-    </div>
-    <button class="btn" id="ci_save">Guardar check-in</button>
-    <div class="suggest" id="ci_out" style="display:none"></div>
-  </div>
-
-  <!-- PESO -->
-  <div class="card">
-    <h2>Peso de hoy</h2>
+  <!-- PESO (compacto, arriba para minima friccion) -->
+  <div class="card" style="margin-top:14px">
+    <h2 style="margin-bottom:10px">Peso de hoy</h2>
     <div class="row">
       <input class="ipt" id="bw" inputmode="decimal" placeholder="kg (ej. 79.2)" style="flex:1" />
       <button class="btn ghost" id="bw_save" style="margin:0;width:auto;padding:12px 18px">Anotar</button>
     </div>
   </div>
 
-  <!-- SESION (overview) -->
+  <!-- CTA PRIMARIO: empezar entreno (sticky, siempre a la vista) -->
+  <div id="startCta">
+    <button class="btn-start" id="startBtn" disabled>Cargando sesión…</button>
+    <div class="cta-sub" id="startSub">Prepara tu sesión guiada manos libres.</div>
+  </div>
+
+  <!-- SESION: solo resumen + detalle colapsable -->
   <div class="card" id="session">
     <h2 id="session_title"><span class="spin"></span> Cargando sesión…</h2>
     <div id="sets"></div>
   </div>
 
-  <!-- GAMIFICACION -->
-  <div class="card" id="gam"></div>
+  <!-- CHECK-IN (acordeon CERRADO por defecto) -->
+  <details class="acc" id="acc_checkin">
+    <summary>
+      <span>¿Cómo estás hoy?</span>
+      <span class="acc-r"><span id="ci_state">Check-in diario</span><span class="chev">▼</span></span>
+    </summary>
+    <div class="acc-body">
+      <div class="grid4">
+        <div>
+          <div class="lbl">Horas de sueño</div>
+          <input class="ipt" id="ci_sleep" inputmode="decimal" placeholder="ej. 5.5" />
+        </div>
+        <div>
+          <div class="lbl">Tiempo hoy</div>
+          <div class="seg" id="ci_time">
+            <button data-v="30">30</button><button data-v="45">45</button>
+            <button data-v="60">60</button><button data-v="75">75</button>
+          </div>
+        </div>
+      </div>
+      <div class="lbl" style="margin-top:12px">Energía / ganas</div>
+      <div class="seg" id="ci_energy">
+        <button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button>
+        <button data-v="4">4</button><button data-v="5">5</button>
+      </div>
+      <div class="lbl" style="margin-top:12px">¿Molestia?</div>
+      <div class="seg" id="ci_sore">
+        <button data-v="ninguna">Ninguna</button><button data-v="dedo">Dedo</button>
+        <button data-v="tobillo">Tobillo</button><button data-v="hombro">Hombro</button>
+      </div>
+      <div class="lbl" style="margin-top:12px">Recuperación activa hoy</div>
+      <div class="seg" id="ci_recovery">
+        <button data-v="">No</button><button data-v="nado">Nado</button>
+        <button data-v="spa">Spa</button><button data-v="paseo">Paseo</button>
+      </div>
+      <button class="btn" id="ci_save">Guardar check-in</button>
+      <div class="suggest" id="ci_out" style="display:none"></div>
+    </div>
+  </details>
+
+  <!-- GAMIFICACION (acordeon CERRADO por defecto) -->
+  <details class="acc" id="acc_gam">
+    <summary>
+      <span>Progreso</span>
+      <span class="acc-r"><span class="acc-badge" id="gam_badge">🔥 0</span><span class="chev">▼</span></span>
+    </summary>
+    <div class="acc-body" id="gam"></div>
+  </details>
 
   <div class="sub" style="text-align:center;margin-top:18px">Forja · v2 · datos en tu Supabase</div>
 </div>
@@ -551,10 +621,24 @@ async function loadProfilePrefs(){
 /* ====================================================================
    SESION DE HOY — carga + overview + autosave (reutiliza saveSet v0.1)
    ==================================================================== */
-let saveT;
-function saveSet(id,patch){clearTimeout(saveT);saveT=setTimeout(async()=>{
-  const sp=safePatch(patch);
-  await sb.from('workout_sets').update(sp).eq('id',id);toast('Guardado ✓');},350);}
+let saveT, savePending=null;
+function saveSet(id,patch){
+  clearTimeout(saveT);
+  savePending={id,patch};               // ultimo edit pendiente (para flush)
+  saveT=setTimeout(async()=>{
+    const p=savePending; savePending=null;
+    if(!p) return;
+    const sp=safePatch(p.patch);
+    await sb.from('workout_sets').update(sp).eq('id',p.id);toast('Guardado ✓');
+  },350);
+}
+/* fuerza YA el autosave pendiente (cierre de pestana / app a background) */
+function flushSaveSet(){
+  if(!savePending) return;
+  clearTimeout(saveT);
+  const p=savePending; savePending=null;
+  saveSetNow(p.id, p.patch);            // update inmediato (no espera; best-effort en pagehide)
+}
 /* version inmediata (sin debounce) para el motor guiado */
 async function saveSetNow(id,patch){
   const sp=safePatch(patch);
@@ -572,6 +656,9 @@ async function loadSession(){
     CUR_WORKOUT=null;CUR_SETS=[];
     title.textContent='Sin sesión para hoy';
     cont.innerHTML='<div class="empty">No hay entreno programado para hoy.<br>Pídeselo al coach.</div>';
+    const sb_btn=document.getElementById('startBtn'); const sb_sub=document.getElementById('startSub');
+    if(sb_btn){ sb_btn.disabled=true; sb_btn.textContent='Sin sesión para hoy'; }
+    if(sb_sub){ sb_sub.textContent='No hay entreno programado. Pídeselo al coach.'; }
     return;
   }
   const wk=w[0];CUR_WORKOUT=wk;title.textContent=wk.day_label||'Sesión de hoy';
@@ -599,15 +686,21 @@ function renderOverview(){
     <span class="sess-chip">${groupCount()} ejercicios</span>`;
   cont.appendChild(sum);
 
-  // boton empezar entreno guiado
-  const startBtn=document.createElement('button');
-  startBtn.className='btn';startBtn.style.marginTop='12px';
+  // CTA primario externo (sticky): solo se actualiza, no se recrea
+  const startBtn=document.getElementById('startBtn');
+  const startSub=document.getElementById('startSub');
+  startBtn.disabled=false;
   startBtn.textContent = doneN>0 && doneN<total ? '▶ Continuar entreno' : '▶ Empezar entreno';
   startBtn.onclick=()=>startGuided();
-  cont.appendChild(startBtn);
+  startSub.textContent = doneN>0 && doneN<total
+    ? `Llevas ${doneN}/${total} series. Sigue donde lo dejaste.`
+    : `${groupCount()} ejercicios · ${working} efectivas · manos libres.`;
 
-  // lista colapsada por ejercicio (revision rapida + generar rampa)
-  const list=document.createElement('div');list.style.marginTop='6px';
+  // detalle de la sesion (lista + rampas) dentro de un acordeon cerrado
+  const det=document.createElement('details'); det.className='acc'; det.style.marginTop='12px';
+  det.innerHTML='<summary><span>Detalle de la sesión</span><span class="acc-r"><span class="chev">▼</span></span></summary>';
+  const detBody=document.createElement('div'); detBody.className='acc-body';
+  const list=document.createElement('div');
   let curEx=null,exSets=[];
   const flush=()=>{
     if(curEx==null) return;
@@ -621,10 +714,11 @@ function renderOverview(){
   };
   CUR_SETS.forEach(s=>{ if(s.exercise_id!==curEx){ flush(); curEx=s.exercise_id; exSets=[]; } exSets.push(s); });
   flush();
-  cont.appendChild(list);
-
-  // si la sesion no tiene aproximaciones y hay compuestos, ofrecer generar rampa
-  maybeOfferRamps(cont);
+  detBody.appendChild(list);
+  det.appendChild(detBody);
+  cont.appendChild(det);
+  // ofrecer rampas dentro del mismo detalle (no en el cont raiz)
+  maybeOfferRamps(detBody);
 }
 function groupCount(){ return new Set(CUR_SETS.map(s=>s.exercise_id)).size; }
 
@@ -847,7 +941,14 @@ class ForjaEngine {
   }
   skip(){ if([ST.IDLE,ST.FINISHED].includes(this.state)) return; this._advance(); }
   skipRest(){ if(this.state===ST.REST) this._advance(); }
-  back(){ if(this.i>0){ this.i--; this.penaltyArmed=false; this.restStartedAt=0; this.restTargetReached=false; this._enterPrep(); } }
+  back(){ if(this.i>0){
+    this.i--; this.penaltyArmed=false; this.restStartedAt=0; this.restTargetReached=false;
+    // limpiar flags POR-SET del paso al que volvemos para no re-emitir telemetria pegada
+    const s=this._cur();
+    if(s){ delete s._closed; delete s._penaltyTriggered; delete s._penaltyChallenge; delete s._penaltyDone;
+           s.repsDone=null; s._actualRestSec=0; }
+    this._enterPrep();
+  } }
   resolvePenalty(){ if(this.state===ST.PENALTY){ this._cur()._penaltyDone=true; this._afterPenalty(); } }
   skipPenalty(){ if(this.state===ST.PENALTY){ this._cur()._penaltyDone=false; this._afterPenalty(); } }
   _afterPenalty(){
@@ -1523,7 +1624,9 @@ async function bumpStreak(){
   if(s.last_active_date){
     const days=daysBetween(today, s.last_active_date);
     if(days===0) return; // ya conto hoy
-    cur = days===1 ? (s.current_streak||0)+1 : 1;
+    // misma gracia que computeStreak: continua si el hueco entra dentro de streakGraceDays
+    // (computeStreak: (gap-1)<=grace  <=>  gap<=grace+1)
+    cur = (days<=(CFG.streakGraceDays+1)) ? (s.current_streak||0)+1 : 1;
   }
   await sb.from('streaks').update({
     current_streak:cur, longest_streak:Math.max(cur, s.longest_streak||0),
@@ -1543,6 +1646,7 @@ async function renderGamification(){
   await evaluateAchievements(snap, derived);
 
   document.getElementById('streakchip').textContent=`🔥 ${streak.current}`;
+  const gb=document.getElementById('gam_badge'); if(gb) gb.textContent=`🔥 ${streak.current}`;
 
   const dots=streak.last7.map(x=>`<span class="sdot ${x.on?'on':'off'}"></span>`).join('');
   const badges=ACHIEVEMENTS.map(a=>{
@@ -1596,6 +1700,10 @@ window.startTimer=startTimer; window.stopTimer=stopTimer;
   await loadSession();
   await renderGamification();
 })();
+
+/* No perder la ultima edicion del overview si la PWA se va a background o se cierra */
+window.addEventListener('pagehide', flushSaveSet);
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') flushSaveSet(); });
 
 /* ====================================================================
    PWA — registro del Service Worker + instalacion (v0.1, intacto)

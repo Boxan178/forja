@@ -2,7 +2,7 @@
    CRITICO subpath /forja/: todo se resuelve contra self.registration.scope,
    nunca contra "/". El SW se registra con scope "./" desde index.html. */
 
-const VERSION = 'forja-v2.2.0';
+const VERSION = 'forja-v2.3.0';
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 
@@ -21,9 +21,11 @@ const SHELL_ASSETS = [
   abs('./icon-192-maskable.png'),
   abs('./icon-512-maskable.png'),
   abs('./apple-touch-icon.png'),
-  // CDNs externos del app-shell (cross-origin, opaque-ok)
-  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
-  'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap'
+  // Tipografia self-host (mismo-origen, bajo /forja/) -> sobrevive offline
+  abs('./fonts/sora-latin-var.woff2'),
+  abs('./fonts/manrope-latin-var.woff2'),
+  // CDN externo del app-shell (cross-origin, opaque-ok)
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];
 
 /* Hosts cuyas respuestas SON datos -> siempre network-first, nunca shell. */
@@ -37,9 +39,13 @@ self.addEventListener('install', (event) => {
     // addAll falla entero si un recurso casca; los metemos uno a uno para ser robustos.
     await Promise.all(SHELL_ASSETS.map(async (url) => {
       try {
-        const req = new Request(url, { cache: 'reload', mode: url.startsWith('http') && !url.startsWith(SCOPE) ? 'cors' : 'same-origin' });
+        const crossOrigin = url.startsWith('http') && !url.startsWith(SCOPE);
+        const req = new Request(url, { cache: 'reload', mode: crossOrigin ? 'cors' : 'same-origin' });
         const res = await fetch(req);
-        if (res && (res.ok || res.type === 'opaque')) await cache.put(url, res.clone());
+        // NUNCA cachear opacas ni errores en assets criticos del shell (sobre todo
+        // supabase-js): una opaca tiene body inaccesible/posible-vacio y dejaria la
+        // app inservible al servir un bundle vacio. Exigimos res.ok && no-opaque.
+        if (res && res.ok && res.type !== 'opaque') await cache.put(url, res.clone());
       } catch (_) { /* recurso opcional: seguimos */ }
     }));
     await self.skipWaiting();
@@ -102,8 +108,12 @@ self.addEventListener('fetch', (event) => {
 async function handleNavigate(event) {
   const req = event.request;
   try {
-    const preload = await event.preloadResponse;
-    if (preload) return preload;
+    // navigationPreload: aislamos su await en su propio try/catch. Si el preload
+    // rechaza, o llega pero NO es ok (404/500 de GitHub Pages, redirect roto...),
+    // NO lo devolvemos: caemos al fetch normal y, si falla, al index offline.
+    let preload = null;
+    try { preload = await event.preloadResponse; } catch (_) { preload = null; }
+    if (preload && preload.ok) return preload;
     const net = await fetch(req);
     return net;
   } catch (_) {
