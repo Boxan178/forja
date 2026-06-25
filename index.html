@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#0B0F1A" />
+<meta name="theme-color" content="#07070A" />
 <title>Forja</title>
 <!-- PWA: rutas RELATIVAS por el subpath /forja/ -->
 <link rel="manifest" href="./manifest.webmanifest" />
@@ -34,28 +34,29 @@
     src:url('./fonts/manrope-latin-var.woff2') format('woff2');
   }
   :root{
-    --bg:#0B0F1A; --accent:#2E9BFF; --accent-soft:rgba(46,155,255,.16);
-    --glass:rgba(255,255,255,.06); --glass-2:rgba(255,255,255,.09);
-    --stroke:rgba(255,255,255,.10); --txt:#EAF0FA; --muted:#A4B0C4; --muted-strong:#C3CDDC;
-    --ok:#34d399; --warn:#f5b14c;
+    /* Symmetry: negro casi puro de fondo, acento azul VIVO */
+    --bg:#07070A; --bg-2:#0E0E12; --bg-elev:#16161C;
+    --accent:#2E7DF6; --accent-2:#5B9DFF;
+    --accent-soft:rgba(46,125,246,.16); --accent-glow:rgba(46,125,246,.45);
+    --glass:rgba(255,255,255,.045); --glass-2:rgba(255,255,255,.07);
+    --stroke:rgba(255,255,255,.09); --stroke-2:rgba(255,255,255,.14);
+    --txt:#FFFFFF; --muted:#8A8A93; --muted-strong:#B8B8C0;
+    --ok:#34d399; --warn:#f5b14c; --danger:#ff5a5f;
+    --radius:22px; --radius-lg:28px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{
     margin:0;font-family:'Manrope',system-ui,sans-serif;color:var(--txt);
-    background:
-      radial-gradient(900px 500px at 80% -10%, rgba(46,155,255,.18), transparent 60%),
-      radial-gradient(700px 500px at -10% 10%, rgba(46,155,255,.10), transparent 55%),
-      var(--bg);
-    background-attachment:fixed;min-height:100vh;
+    background:var(--bg);   /* PLANO, sin gradiente azul: Symmetry es negro puro */
+    min-height:100vh;
     padding:env(safe-area-inset-top) 0 calc(96px + env(safe-area-inset-bottom));
   }
   .wrap{max-width:540px;margin:0 auto;padding:18px 16px}
   h1{font-family:'Sora';font-weight:800;font-size:26px;letter-spacing:-.5px;margin:0}
   .sub{color:var(--muted);font-size:13px;margin-top:2px}
   .card{
-    background:var(--glass);border:1px solid var(--stroke);border-radius:20px;
-    backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);
-    padding:16px;margin-top:14px;box-shadow:0 10px 30px rgba(0,0,0,.25)
+    background:var(--bg-elev);border:1px solid var(--stroke);border-radius:var(--radius);
+    padding:16px;margin-top:14px;box-shadow:0 10px 30px rgba(0,0,0,.35)
   }
   .card h2{font-family:'Sora';font-weight:700;font-size:15px;margin:0 0 12px;letter-spacing:.2px}
   .row{display:flex;align-items:center;gap:10px}
@@ -106,16 +107,6 @@
   .pill{display:inline-block;background:var(--accent-soft);color:#bfe0ff;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600}
   .pill.streak{background:var(--glass-2);color:var(--txt);border:1px solid var(--stroke);font-family:'Sora';font-weight:800;font-variant-numeric:tabular-nums;margin-left:6px}
   .suggest{margin-top:10px;font-size:13px;line-height:1.45;color:#cfe1f7;background:var(--accent-soft);border:1px solid var(--stroke);border-radius:13px;padding:11px 13px}
-  /* barra de descanso libre (overview) */
-  #timerbar{
-    position:fixed;left:0;right:0;bottom:0;z-index:50;
-    padding:10px 14px calc(10px + env(safe-area-inset-bottom));
-    background:rgba(11,15,26,.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-    border-top:1px solid var(--stroke);display:flex;align-items:center;gap:10px
-  }
-  #timerbar.hidden{display:none}
-  #timerbar .seg{flex:1}
-  #tdisp{font-family:'Sora';font-weight:800;font-size:22px;min-width:64px;text-align:center;font-variant-numeric:tabular-nums}
   .muted{color:var(--muted)}
   .toast{
     position:fixed;left:50%;top:18px;transform:translateX(-50%) translateY(-30px);
@@ -161,7 +152,7 @@
     width:100%; border:0; border-radius:18px; padding:18px;
     font-family:'Sora'; font-weight:800; font-size:18px; letter-spacing:.3px;
     background:var(--accent); color:#031323; cursor:pointer;
-    box-shadow:0 12px 30px rgba(46,155,255,.28); transition:transform .08s, background .2s;
+    box-shadow:0 12px 30px var(--accent-glow); transition:transform .08s, background .2s;
   }
   #startCta .btn-start:active{ transform:scale(.99) }
   #startCta .btn-start:disabled{ background:var(--glass-2); color:var(--muted); box-shadow:none; cursor:default }
@@ -169,9 +160,8 @@
 
   /* ===== Acordeon accesible (details/summary nativo, estilado) ===== */
   details.acc{
-    background:var(--glass); border:1px solid var(--stroke); border-radius:20px;
-    backdrop-filter:blur(22px) saturate(140%); -webkit-backdrop-filter:blur(22px) saturate(140%);
-    padding:0; margin-top:14px; box-shadow:0 10px 30px rgba(0,0,0,.25); overflow:hidden;
+    background:var(--bg-elev); border:1px solid var(--stroke); border-radius:var(--radius);
+    padding:0; margin-top:14px; box-shadow:0 10px 30px rgba(0,0,0,.35); overflow:hidden;
   }
   details.acc>summary{
     list-style:none; cursor:pointer; user-select:none;
@@ -231,14 +221,150 @@
   .b-name{font-family:'Sora';font-weight:700;font-size:13px;margin-top:4px}
   .b-desc{font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.3}
 
-  /* ===== MODO ENTRENO — player full-screen ===== */
+  /* ===== SPA: vistas + barra inferior de pestanas ===== */
+  .view{display:none}
+  .view.active{display:block}
+  nav#tabbar{
+    position:fixed;left:0;right:0;bottom:0;z-index:120;
+    display:flex;align-items:stretch;justify-content:space-around;
+    padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+    background:linear-gradient(transparent,var(--bg-2) 30%);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    border-top:1px solid var(--stroke)
+  }
+  nav#tabbar button{
+    flex:1;min-width:0;min-height:52px;background:transparent;border:0;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    color:var(--muted);font-family:'Manrope';font-weight:600;font-size:11px;letter-spacing:.2px;
+    padding:6px 2px;border-radius:14px;transition:color .15s,background .15s
+  }
+  nav#tabbar button .tb-ic{font-size:20px;line-height:1}
+  nav#tabbar button.sel{color:var(--accent);background:var(--accent-soft)}
+  nav#tabbar button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+
+  /* ===== HOME Symmetry: banner de racha ===== */
+  .streak-banner{display:flex;align-items:center;gap:13px;margin-top:6px;padding:14px 16px;
+    border-radius:var(--radius);background:linear-gradient(135deg,var(--accent-soft),var(--bg-elev));
+    border:1px solid var(--stroke-2);box-shadow:0 0 0 1px rgba(46,125,246,.08) inset}
+  .sb-flame{font-size:26px;filter:drop-shadow(0 0 8px var(--accent-glow))}
+  .sb-txt{flex:1;min-width:0}
+  .sb-main{font-family:'Sora';font-weight:800;font-size:15px;line-height:1.2}
+  .sb-sub{font-size:12.5px;color:var(--muted-strong);margin-top:3px}
+  .sb-week{display:flex;gap:4px}
+  .sb-dot{width:9px;height:9px;border-radius:50%;background:var(--glass-2);border:1px solid var(--stroke)}
+  .sb-dot.on{background:var(--accent);border-color:var(--accent);box-shadow:0 0 6px var(--accent-glow)}
+  .sb-dot.today{outline:2px solid var(--accent-2);outline-offset:1px}
+
+  /* ===== HOME Symmetry: card-héroe del entreno de hoy ===== */
+  .hero{display:block;width:100%;text-align:left;border:0;padding:0;margin-top:14px;cursor:pointer;
+    position:relative;border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:5/4;background:var(--bg-elev);
+    transition:transform .1s}
+  .hero:active{transform:scale(.99)}
+  .hero:disabled{opacity:.6;cursor:default}
+  .hero-img{position:absolute;inset:0;background-size:cover;background-position:center;
+    background-image:linear-gradient(160deg,#1b2333,#0b0d12)}
+  .hero-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,7,10,.1) 30%,rgba(7,7,10,.92))}
+  .hero-body{position:absolute;left:20px;right:20px;bottom:20px}
+  .hero-title{font-family:'Sora';font-weight:800;font-size:clamp(24px,8vw,38px);line-height:.98;letter-spacing:-1px;
+    text-transform:uppercase;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .hero-meta{font-family:'Manrope';font-weight:600;font-size:15px;color:var(--muted-strong);margin-top:8px}
+  .hero-cta{position:absolute;top:16px;right:16px;width:46px;height:46px;border-radius:50%;
+    background:var(--accent);color:#04101f;display:flex;align-items:center;justify-content:center;
+    font-size:18px;box-shadow:0 6px 20px var(--accent-glow)}
+
+  /* ===== HOME Symmetry: lista "Tus Entrenamientos" ===== */
+  .sec-h{font-family:'Sora';font-weight:800;font-size:21px;letter-spacing:-.3px;margin:22px 0 12px}
+  .wk-list{display:flex;flex-direction:column;gap:2px}
+  .wk-row{display:flex;align-items:center;gap:14px;padding:11px 4px;cursor:pointer;border-radius:14px}
+  .wk-row:active{background:var(--glass)}
+  .wk-thumb{width:58px;height:58px;border-radius:14px;flex:0 0 auto;background:var(--bg-elev);
+    border:1px solid var(--stroke);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--muted)}
+  .wk-info{flex:1;min-width:0}
+  .wk-name{font-family:'Sora';font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wk-ex{font-size:13px;color:var(--muted);margin-top:2px;line-height:1.3;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .wk-more{color:var(--muted);font-size:20px;padding:4px}
+
+  /* ===== Racha prominente en Home (legacy) ===== */
+  .streak-hero{display:flex;align-items:center;gap:14px}
+  .streak-hero .sh-flame{font-family:'Sora';font-weight:800;font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+  .streak-hero .sh-txt{flex:1;min-width:0}
+  .streak-hero .sh-big{font-family:'Sora';font-weight:800;font-size:18px;letter-spacing:-.3px}
+  .streak-hero .sh-sub{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+  .streak-hero .streak7{display:inline-flex;gap:3px;vertical-align:middle;margin-left:4px}
+
+  /* ===== Gráfica de peso (Progreso) ===== */
+  .wchart{width:100%;height:120px;display:block;margin-top:4px}
+  .wchart .wgrid{stroke:var(--stroke);stroke-width:1}
+  .wchart .wline{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+  .wchart .warea{fill:var(--accent-soft);stroke:none}
+  .wchart .wdot{fill:var(--accent)}
+  .whist{margin-top:12px}
+  .whist .wh-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;
+    padding:9px 0;border-top:1px solid var(--stroke);font-variant-numeric:tabular-nums}
+  .whist .wh-row:first-child{border-top:0}
+  .whist .wh-date{font-size:13px;color:var(--muted-strong)}
+  .whist .wh-kg{font-family:'Sora';font-weight:700;font-size:14px;text-align:right}
+  .whist .wh-d{font-size:12px;text-align:right;min-width:54px}
+  .whist .wh-d.up{color:var(--warn)} .whist .wh-d.down{color:var(--ok)} .whist .wh-d.flat{color:var(--muted)}
+
+  /* ===== Progreso: stats de cabecera + chart-head + historial + prefs ===== */
+  .prg-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
+  .prg-stat{background:var(--glass-2);border:1px solid var(--stroke);border-radius:16px;padding:13px 9px;text-align:center}
+  .prg-stat .v{font-family:'Sora';font-weight:800;font-size:21px;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+  .prg-stat .v small{font-size:12px;font-weight:700;color:var(--muted)}
+  .prg-stat .l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+  .chart-head{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 8px}
+  .chart-head .now{font-family:'Sora';font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}
+  .chart-head .delta{font-size:12px;font-weight:600;color:var(--muted)}
+  .chart-head .delta.up{color:var(--warn)} .chart-head .delta.down{color:var(--ok)}
+  .hist-item{border-top:1px solid var(--stroke)}
+  .hist-item:first-child{border-top:0}
+  .hist-sum{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;cursor:pointer;user-select:none}
+  .hist-sum .dl{font-family:'Sora';font-weight:700;font-size:14px}
+  .hist-sum .dt{font-size:11px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
+  .hist-sum .mr{text-align:right;white-space:nowrap}
+  .hist-sum .mr .ton{font-family:'Sora';font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+  .hist-sum .mr .sr{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .hist-sum .chev{color:var(--muted);font-size:12px;transition:transform .2s;margin-left:4px}
+  .hist-item.open .chev{transform:rotate(180deg)}
+  .hist-detail{display:none;padding:0 0 12px}
+  .hist-item.open .hist-detail{display:block}
+  .hist-ex{display:flex;justify-content:space-between;gap:8px;padding:5px 0;font-size:13px}
+  .hist-ex .n{color:var(--txt)} .hist-ex .s{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+  .pf-prefs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .pf-pref{background:var(--glass-2);border:1px solid var(--stroke);border-radius:14px;padding:11px 12px}
+  .pf-pref .pv{font-family:'Sora';font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}
+  .pf-pref .pl{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+  /* ===== Modal genérico (check-in popup) ===== */
+  .modal{position:fixed;inset:0;z-index:300;display:none;align-items:flex-end;justify-content:center;
+    background:rgba(4,7,13,.62);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+  .modal.show{display:flex}
+  .modal .msheet{width:100%;max-width:540px;background:#10182a;border:1px solid var(--stroke);
+    border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));
+    box-shadow:0 -10px 40px rgba(0,0,0,.5);max-height:90vh;overflow-y:auto;animation:msheet-in .25s ease both}
+  @keyframes msheet-in{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+  .modal .mhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+  .modal .mhead h3{font-family:'Sora';font-weight:800;font-size:18px;margin:0}
+  .modal .mclose{width:40px;height:40px;border-radius:12px;border:1px solid var(--stroke);background:var(--glass-2);
+    color:var(--muted);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+  /* ===== Recomendador (veredicto del check-in) ===== */
+  .cm-verdict{display:flex;gap:12px;align-items:flex-start;background:var(--glass-2);border:1px solid var(--stroke);
+    border-radius:16px;padding:13px 14px;margin:12px 0 4px;transition:.2s}
+  .cm-verdict[data-mode="normal"]{background:rgba(52,211,153,.10);border-color:rgba(52,211,153,.32)}
+  .cm-verdict[data-mode="volumen_recortado"]{background:rgba(245,177,76,.10);border-color:rgba(245,177,76,.32)}
+  .cm-verdict[data-mode="descanso_activo"]{background:var(--accent-soft);border-color:rgba(46,125,246,.4)}
+  .cm-verdict-ico{font-size:24px;line-height:1.2;flex:0 0 auto}
+  .cm-verdict-head{font-family:'Sora';font-weight:700;font-size:14px;line-height:1.3}
+  .cm-verdict-detail{font-size:12.5px;color:var(--muted-strong);line-height:1.45;margin-top:3px}
+  #ci_save.rest{background:var(--ok);color:#04130c}
+  #ci_save.cut{background:var(--warn);color:#211302}
+
+  /* ===== MODO ENTRENO — player full-screen (Symmetry reskin) ===== */
   #player{
     position:fixed;inset:0;z-index:200;display:none;flex-direction:column;
-    background:
-      radial-gradient(900px 600px at 80% -10%, rgba(46,155,255,.22), transparent 60%),
-      radial-gradient(700px 500px at -10% 10%, rgba(46,155,255,.12), transparent 55%),
-      var(--bg);
-    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    background:#0A0A0C;   /* negro casi puro, sin gradiente azul */
     padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
     animation:pl-in .28s ease both;
   }
@@ -299,7 +425,7 @@
   .pl-go{
     width:100%;height:64px;border:0;border-radius:18px;font-family:'Sora';font-weight:800;font-size:18px;letter-spacing:.3px;
     background:var(--accent);color:#031323;cursor:pointer;transition:background .2s,transform .08s;
-    box-shadow:0 12px 30px rgba(46,155,255,.28)
+    box-shadow:0 12px 30px var(--accent-glow)
   }
   .pl-go:active{transform:scale(.985)}
   .pl-go.ok{background:var(--ok);color:#04130c;box-shadow:0 12px 30px rgba(52,211,153,.25)}
@@ -312,20 +438,96 @@
   .pl-summary.show{display:flex}
   .pl-sum-big{font-family:'Sora';font-weight:800;font-size:30px}
   .pl-sum-line{font-size:14px;color:var(--muted)}
+
+  /* ===== Symmetry player — header / carrusel / area visual / tabla ===== */
+  .pl2-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;gap:12px}
+  .pl2-clock{font-family:'Sora';font-weight:800;font-size:20px;font-variant-numeric:tabular-nums;color:var(--txt)}
+  .pl2-ic{width:40px;height:40px;border-radius:12px;background:#16161A;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--muted);cursor:pointer;user-select:none}
+  .pl2-ic:active{background:#1f1f25}
+  .pl2-finish{background:#fff;color:#000;border:0;border-radius:14px;padding:11px 20px;font-family:'Sora';font-weight:800;font-size:15px;cursor:pointer}
+  .pl2-finish:active{transform:scale(.97)}
+  .pl2-rail{display:flex;gap:12px;overflow-x:auto;padding:8px 16px 4px;scrollbar-width:none}
+  .pl2-rail::-webkit-scrollbar{display:none}
+  .pl2-dot{flex:0 0 auto;width:60px;height:60px;border-radius:50%;background:#141418;border:2px solid transparent;display:flex;align-items:center;justify-content:center;font-size:22px;opacity:.5;transition:.2s}
+  .pl2-dot.done{opacity:.7}
+  .pl2-dot.active{opacity:1;border-color:#2E7DF6;box-shadow:0 0 18px rgba(46,125,246,.5)}
+  .pl2-scroll{flex:1;overflow-y:auto;padding:4px 16px 8px;min-height:0;max-width:540px;width:100%;margin:0 auto}
+  .pl2-visual{position:relative;border-radius:22px;background:radial-gradient(120% 90% at 50% 0%,#15151B,#0A0A0C);min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;margin-bottom:14px}
+  .pl2-imgph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:64px;opacity:.07;pointer-events:none}
+  .pl2-visual{transition:opacity .22s ease, transform .22s ease}
+  .pl2-visual.swapping{opacity:0;transform:translateY(8px)}
+  .pl2-visual .pl-ring{width:230px;height:230px;max-width:64vw;max-height:64vw;z-index:1}
+  .pl2-visual .pl-phase{z-index:1}
+  .pl2-visual .pl-stepper{z-index:1}
+  .pl2-actions{display:flex;gap:8px;margin-bottom:14px}
+  .pl2-act{flex:1;background:#141418;border:0;border-radius:14px;padding:13px 8px;color:var(--txt);font-family:'Manrope';font-weight:600;font-size:13px;cursor:pointer;white-space:nowrap}
+  .pl2-act:active{background:#1c1c22}
+  .pl2-act.danger{background:#2A1416;color:#ff6b6b}
+  .pl2-exrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+  .pl2-exname{font-family:'Sora';font-weight:800;font-size:22px;letter-spacing:-.4px;line-height:1.1}
+  .pl2-rest{font-size:13px;color:#2E7DF6;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .pl2-sub{font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.4}
+  .pl2-tbl{background:transparent}
+  .pl2-tr{display:grid;grid-template-columns:48px 1fr 1fr 1fr 52px;gap:10px;align-items:center;margin-bottom:10px}
+  .pl2-th>span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+  .pl2-th{margin-bottom:14px}
+  .pl2-spark{width:52px;height:52px;border-radius:50%;background:transparent;border:1.5px solid #2E7DF6;color:#2E7DF6;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+  .pl2-spark:active{background:rgba(46,125,246,.12)}
+  .pl2-snum{width:48px;height:48px;border-radius:14px;background:#141418;display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:16px;font-variant-numeric:tabular-nums}
+  .pl2-row.active .pl2-snum{background:#2E7DF6;color:#001022;box-shadow:0 0 16px rgba(46,125,246,.5)}
+  .pl2-prev{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
+  .pl2-cell{height:52px;border-radius:14px;background:#141418;border:1px solid transparent;color:var(--txt);text-align:center;font-family:'Sora';font-weight:700;font-size:17px;font-variant-numeric:tabular-nums;width:100%;outline:none;display:flex;align-items:center;justify-content:center}
+  input.pl2-cell{-webkit-appearance:none;appearance:none}
+  .pl2-cell:focus{border-color:#2E7DF6}
+  .pl2-row.active .pl2-cell{background:#1A1A20}
+  .pl2-row.done .pl2-cell{opacity:.55}
+  .pl2-chk{width:52px;height:52px;border-radius:50%;background:#141418;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:20px}
+  .pl2-row.done .pl2-chk{background:#1E2E22;color:var(--ok)}
+  .pl2-foot{padding:10px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.06);max-width:540px;width:100%;margin:0 auto}
+  .pl2-foot .pl-next{margin-bottom:8px}
+  #player .pl-summary.show{flex:1;justify-content:center;padding:24px}
 </style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
-<div class="wrap" id="overview">
+
+<!-- ======================== VISTA: HOY ======================== -->
+<div class="wrap view active" id="view-hoy" data-view="hoy">
   <div class="row" style="justify-content:space-between;align-items:flex-end">
     <div>
       <h1>Forja</h1>
       <div class="sub" id="dateline">—</div>
     </div>
     <div>
-      <span class="pill" id="bwpill">— kg</span>
       <span class="pill streak" id="streakchip">🔥 0</span>
     </div>
+  </div>
+
+  <!-- BANNER DE RACHA (Symmetry) -->
+  <div class="streak-banner" id="streakBanner">
+    <div class="sb-flame" id="sb_flame">🔥</div>
+    <div class="sb-txt">
+      <div class="sb-main" id="sbMain">Llevas 0 días de racha</div>
+      <div class="sb-sub"  id="sbSub">Empieza hoy tu semana de entrenos</div>
+    </div>
+    <div class="sb-week" id="sbWeek"></div>
+  </div>
+
+  <!-- CARD-HÉROE del entreno de hoy -->
+  <button class="hero" id="heroToday" disabled>
+    <div class="hero-img" id="heroImg"></div>
+    <div class="hero-veil"></div>
+    <div class="hero-body">
+      <div class="hero-title" id="heroTitle">Cargando…</div>
+      <div class="hero-meta" id="heroMeta"><span class="spin"></span></div>
+    </div>
+    <div class="hero-cta" id="heroCta">▶</div>
+  </button>
+
+  <!-- LISTA "Tus Entrenamientos" -->
+  <h2 class="sec-h">Tus Entrenamientos</h2>
+  <div id="workoutList" class="wk-list">
+    <div class="empty">Cargando sesión…</div>
   </div>
 
   <!-- INSTALAR APP (PWA) -->
@@ -340,78 +542,157 @@
     </div>
   </div>
 
-  <!-- PESO (compacto, arriba para minima friccion) -->
-  <div class="card" style="margin-top:14px">
+  <!-- SESION: resumen + detalle colapsable (motor reutiliza #sets/#session_title; oculto en Home) -->
+  <div id="session" hidden>
+    <span id="session_title"></span>
+    <div id="sets"></div>
+  </div>
+
+  <div class="sub" style="text-align:center;margin-top:18px">Forja · v3 · datos en tu Supabase</div>
+</div>
+
+<!-- ======================== VISTA: ENTRENAR ======================== -->
+<div class="wrap view" id="view-entrenar" data-view="entrenar">
+  <h1>Entrenar</h1>
+  <div class="sub">Tu sesión guiada manos libres.</div>
+  <div class="card" id="ent_session">
+    <h2 id="ent_title">Sesión de hoy</h2>
+    <div id="ent_sets" class="empty">Cargando…</div>
+  </div>
+  <div id="entCta" style="margin-top:14px">
+    <button class="btn-start" id="entStartBtn" disabled>Cargando sesión…</button>
+    <div class="cta-sub" id="entStartSub">Pasa el check-in y arranca.</div>
+  </div>
+</div>
+
+<!-- ======================== VISTA: PROGRESO ======================== -->
+<div class="wrap view" id="view-progreso" data-view="progreso">
+  <h1>Progreso</h1>
+  <div class="sub">Tu evolución, sin humo.</div>
+
+  <!-- Stats de cabecera: volumen 7d · racha · sesiones -->
+  <div class="prg-stats" id="prgStats"></div>
+
+  <!-- Gráfica de peso + historial corporal -->
+  <div class="card" id="weightCard">
+    <h2>Peso corporal</h2>
+    <div class="chart-head"><span class="now" id="bwNow">— kg</span><span class="delta" id="bwDelta"></span></div>
+    <div id="weightChart"><div class="empty">Sin registros de peso todavía.</div></div>
+    <div class="whist" id="weightHist"></div>
+  </div>
+
+  <!-- Historial de entrenos (expandible) -->
+  <div class="card">
+    <h2>Historial de entrenos</h2>
+    <div id="prgHistory"><div class="empty">Cargando historial…</div></div>
+  </div>
+
+  <!-- Gamificación (movida desde Home) -->
+  <div class="card" id="gam"></div>
+</div>
+
+<!-- ======================== VISTA: DIETA ======================== -->
+<div class="wrap view" id="view-dieta" data-view="dieta">
+  <h1>Dieta</h1>
+  <div class="sub">Peso de hoy y check-in nutricional.</div>
+  <div class="card">
     <h2 style="margin-bottom:10px">Peso de hoy</h2>
     <div class="row">
       <input class="ipt" id="bw" inputmode="decimal" placeholder="kg (ej. 79.2)" style="flex:1" />
       <button class="btn ghost" id="bw_save" style="margin:0;width:auto;padding:12px 18px">Anotar</button>
     </div>
+    <div class="suggest" id="bwInfo" style="display:none"></div>
   </div>
-
-  <!-- CTA PRIMARIO: empezar entreno (sticky, siempre a la vista) -->
-  <div id="startCta">
-    <button class="btn-start" id="startBtn" disabled>Cargando sesión…</button>
-    <div class="cta-sub" id="startSub">Prepara tu sesión guiada manos libres.</div>
+  <div class="card">
+    <h2>Próximamente</h2>
+    <div class="empty">El módulo de dieta llegará aquí: macros, comidas y objetivos.</div>
   </div>
-
-  <!-- SESION: solo resumen + detalle colapsable -->
-  <div class="card" id="session">
-    <h2 id="session_title"><span class="spin"></span> Cargando sesión…</h2>
-    <div id="sets"></div>
-  </div>
-
-  <!-- CHECK-IN (acordeon CERRADO por defecto) -->
-  <details class="acc" id="acc_checkin">
-    <summary>
-      <span>¿Cómo estás hoy?</span>
-      <span class="acc-r"><span id="ci_state">Check-in diario</span><span class="chev">▼</span></span>
-    </summary>
-    <div class="acc-body">
-      <div class="grid4">
-        <div>
-          <div class="lbl">Horas de sueño</div>
-          <input class="ipt" id="ci_sleep" inputmode="decimal" placeholder="ej. 5.5" />
-        </div>
-        <div>
-          <div class="lbl">Tiempo hoy</div>
-          <div class="seg" id="ci_time">
-            <button data-v="30">30</button><button data-v="45">45</button>
-            <button data-v="60">60</button><button data-v="75">75</button>
-          </div>
-        </div>
-      </div>
-      <div class="lbl" style="margin-top:12px">Energía / ganas</div>
-      <div class="seg" id="ci_energy">
-        <button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button>
-        <button data-v="4">4</button><button data-v="5">5</button>
-      </div>
-      <div class="lbl" style="margin-top:12px">¿Molestia?</div>
-      <div class="seg" id="ci_sore">
-        <button data-v="ninguna">Ninguna</button><button data-v="dedo">Dedo</button>
-        <button data-v="tobillo">Tobillo</button><button data-v="hombro">Hombro</button>
-      </div>
-      <div class="lbl" style="margin-top:12px">Recuperación activa hoy</div>
-      <div class="seg" id="ci_recovery">
-        <button data-v="">No</button><button data-v="nado">Nado</button>
-        <button data-v="spa">Spa</button><button data-v="paseo">Paseo</button>
-      </div>
-      <button class="btn" id="ci_save">Guardar check-in</button>
-      <div class="suggest" id="ci_out" style="display:none"></div>
-    </div>
-  </details>
-
-  <!-- GAMIFICACION (acordeon CERRADO por defecto) -->
-  <details class="acc" id="acc_gam">
-    <summary>
-      <span>Progreso</span>
-      <span class="acc-r"><span class="acc-badge" id="gam_badge">🔥 0</span><span class="chev">▼</span></span>
-    </summary>
-    <div class="acc-body" id="gam"></div>
-  </details>
-
-  <div class="sub" style="text-align:center;margin-top:18px">Forja · v2 · datos en tu Supabase</div>
 </div>
+
+<!-- ======================== VISTA: PERFIL ======================== -->
+<div class="wrap view" id="view-perfil" data-view="perfil">
+  <h1>Perfil</h1>
+  <div class="sub">Preferencias y objetivos.</div>
+  <div class="card">
+    <h2>Objetivo semanal</h2>
+    <div class="sess-sum">
+      <span class="sess-chip"><b id="pf_done">0</b>/<span id="pf_target">6</span> sesiones esta semana</span>
+      <span class="sess-chip"><b id="pf_left">—</b> te quedan</span>
+    </div>
+    <div class="sess-sum" style="margin-top:6px">
+      <span class="sess-chip">🔥 racha <b id="pf_streak">0</b></span>
+      <span class="sess-chip">🏔️ mejor <b id="pf_best">0</b></span>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Temporizadores</h2>
+    <div class="pf-prefs" id="pf_prefs"></div>
+    <div class="muted" style="font-size:11.5px;margin-top:10px;line-height:1.4">
+      Estos valores los fija el coach en tu perfil de Supabase. Aquí solo los consultas.
+    </div>
+  </div>
+  <div class="card">
+    <h2>Instalación</h2>
+    <div class="empty" id="pf_install">Usa la pestaña Hoy para instalar Forja como app.</div>
+  </div>
+  <div class="sub" style="text-align:center;margin-top:18px">Forja · v3 · datos en tu Supabase</div>
+</div>
+
+<!-- ======================== CHECK-IN (MODAL POPUP) ======================== -->
+<div class="modal" id="checkinModal" onclick="if(event.target===this)closeCheckin()">
+  <div class="msheet">
+    <div class="mhead">
+      <h3>¿Cómo estás hoy?</h3>
+      <div class="mclose" id="ci_close" aria-label="Cerrar">✕</div>
+    </div>
+    <div class="sub" style="margin-bottom:10px">Ajusto la sesión a tu energía antes de arrancar.</div>
+    <div class="grid4">
+      <div>
+        <div class="lbl">Horas de sueño</div>
+        <input class="ipt" id="ci_sleep" inputmode="decimal" placeholder="ej. 5.5" />
+      </div>
+      <div>
+        <div class="lbl">Tiempo hoy</div>
+        <div class="seg" id="ci_time">
+          <button data-v="30">30</button><button data-v="45">45</button>
+          <button data-v="60">60</button><button data-v="75">75</button>
+        </div>
+      </div>
+    </div>
+    <div class="lbl" style="margin-top:12px">Energía / ganas</div>
+    <div class="seg" id="ci_energy">
+      <button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button>
+      <button data-v="4">4</button><button data-v="5">5</button>
+    </div>
+    <div class="lbl" style="margin-top:12px">¿Molestia?</div>
+    <div class="seg" id="ci_sore">
+      <button data-v="ninguna" class="sel">Ninguna</button><button data-v="dedo">Dedo</button>
+      <button data-v="tobillo">Tobillo</button><button data-v="hombro">Hombro</button>
+      <button data-v="rodilla">Rodilla</button><button data-v="espalda">Espalda</button>
+    </div>
+
+    <!-- VEREDICTO del recomendador (lo decide la app, no el usuario) -->
+    <div class="cm-verdict" id="ci_verdict" data-mode="">
+      <div class="cm-verdict-ico" id="ci_v_ico">🟦</div>
+      <div class="cm-verdict-txt">
+        <div class="cm-verdict-head" id="ci_v_head">Marca tu energía y tiempo</div>
+        <div class="cm-verdict-detail" id="ci_v_detail">Te recomiendo el enfoque del día según tu racha.</div>
+      </div>
+    </div>
+
+    <button class="btn" id="ci_save" disabled>Marca energía y tiempo</button>
+    <button class="btn ghost" id="ci_skip" style="margin-top:8px">Saltar y entrenar igual</button>
+  </div>
+</div>
+
+<!-- ======================== BARRA INFERIOR DE PESTAÑAS ======================== -->
+<nav id="tabbar">
+  <button data-go="hoy" class="sel"><span class="tb-ic">🏠</span><span>Hoy</span></button>
+  <button data-go="entrenar"><span class="tb-ic">🏋️</span><span>Entrenar</span></button>
+  <button data-go="progreso"><span class="tb-ic">📈</span><span>Progreso</span></button>
+  <button data-go="dieta"><span class="tb-ic">🥗</span><span>Dieta</span></button>
+  <button data-go="perfil"><span class="tb-ic">👤</span><span>Perfil</span></button>
+</nav>
 
 <!-- HOJA iOS / "Anadir a pantalla de inicio" -->
 <div id="iosSheet" onclick="if(event.target===this)closeIosSheet()">
@@ -427,30 +708,17 @@
   </div>
 </div>
 
-<!-- DESCANSO LIBRE (overview) -->
-<div id="timerbar">
-  <span id="tdisp">Descanso</span>
-  <div class="seg">
-    <button onclick="startTimer(90)">90s</button>
-    <button onclick="startTimer(120)">2:00</button>
-    <button onclick="startTimer(180)">3:00</button>
-    <button onclick="stopTimer()" class="muted">✕</button>
-  </div>
-</div>
-
-<!-- ======================== MODO ENTRENO ======================== -->
+<!-- ======================== MODO ENTRENO (Symmetry) ======================== -->
 <div id="player" aria-hidden="true">
-  <div class="pl-wrap">
-    <div>
-      <div class="pl-top">
-        <div class="pl-icon" id="pl_exit">✕</div>
-        <div class="pl-prog" id="pl_prog">—</div>
-        <div class="pl-icon" id="pl_pause">⏸</div>
-      </div>
-      <div class="pl-bar"><i id="pl_barfill"></i></div>
-    </div>
-
-    <div class="pl-mid" id="pl_mid">
+  <div class="pl2-head">
+    <div class="pl2-ic" id="pl_pause">⏸</div>
+    <div class="pl2-clock" id="pl_prog">0:00</div>
+    <button class="pl2-finish" id="pl_exit">Terminar</button>
+  </div>
+  <div class="pl2-rail" id="pl_rail"></div>           <!-- carrusel horizontal de ejercicios -->
+  <div class="pl2-scroll" id="pl_mid">
+    <div class="pl2-visual" id="pl_visual">           <!-- area visual grande: anillo + placeholder Flow -->
+      <div class="pl2-imgph" id="pl_imgph"><span>🏋️</span></div>  <!-- HUECO imagen Flow Fase2 -->
       <div class="pl-phase" id="pl_phase">Prepárate</div>
       <div class="pl-ring" id="pl_ring">
         <svg viewBox="0 0 260 260">
@@ -462,29 +730,38 @@
           <div class="pl-numsub" id="pl_numsub">segundos</div>
         </div>
       </div>
-      <div class="pl-exname" id="pl_exname">Ejercicio</div>
-      <div class="pl-meta">
-        <span class="pl-set" id="pl_setlbl">Serie 1/4</span>
-        <span class="pl-type working" id="pl_type">Efectiva</span>
-      </div>
-      <div class="pl-target" id="pl_target">OBJETIVO · — kg × — reps</div>
     </div>
+    <div class="pl2-actions">                          <!-- Guia/Reemplazar/Borrar (placeholders Fase1) -->
+      <button class="pl2-act" id="pl_guide">▶ Guía</button>
+      <button class="pl2-act" id="pl_replace">⇄ Reemplazar</button>
+      <button class="pl2-act danger" id="pl_delete">🗑 Borrar</button>
+    </div>
+    <div class="pl2-exrow">
+      <div class="pl2-exname" id="pl_exname">Ejercicio</div>
+      <div class="pl2-rest" id="pl_restbadge">⏱ 120s</div>
+    </div>
+    <div class="pl2-sub" id="pl_target">OBJETIVO · — kg × — reps</div>
+    <div class="pl2-tbl">
+      <div class="pl2-tr pl2-th"><span>SERIE</span><span>PREVIA</span><span>KG</span><span>REPES</span>
+        <button class="pl2-spark" id="pl_spark" title="Sobrecarga progresiva">✨</button></div>
+      <div id="pl_tbody"></div>                        <!-- filas inyectadas por renderTable(vm) -->
+    </div>
+    <div class="pl-next" id="pl_next"></div>
+  </div>
 
-    <!-- resumen final -->
-    <div class="pl-summary" id="pl_summary">
-      <div class="pl-phase done">Sesión terminada</div>
-      <div class="pl-sum-big" id="pl_sum_big">🔥</div>
-      <div class="pl-sum-line" id="pl_sum_line"></div>
-    </div>
+  <!-- resumen final -->
+  <div class="pl-summary" id="pl_summary">
+    <div class="pl-phase done">Sesión terminada</div>
+    <div class="pl-sum-big" id="pl_sum_big">🔥</div>
+    <div class="pl-sum-line" id="pl_sum_line"></div>
+  </div>
 
-    <div class="pl-bot">
-      <div class="pl-next" id="pl_next"></div>
-      <div class="pl-subrow" id="pl_subrow" style="display:none">
-        <button class="pl-go ghost" id="pl_back">← Atrás</button>
-        <button class="pl-go ghost" id="pl_skip">Saltar →</button>
-      </div>
-      <button class="pl-go" id="pl_go">Empezar ya</button>
+  <div class="pl2-foot">
+    <div class="pl-subrow" id="pl_subrow" style="display:none">
+      <button class="pl-go ghost" id="pl_back">← Atrás</button>
+      <button class="pl-go ghost" id="pl_skip">Saltar →</button>
     </div>
+    <button class="pl-go" id="pl_go">Empezar ya</button>
   </div>
 </div>
 
@@ -508,7 +785,7 @@ document.getElementById('dateline').textContent=`${DOW[new Date().getDay()]} · 
 /* defaults de motor/perfil (se sobreescriben con profile si existe) */
 const CFG={ prep_seconds:10, default_rest_seconds:120, rest_penalty_seconds:300,
             default_work_seconds:15, default_set_mode:'reps',
-            benchTargetKg:100, weightBandKg:1.5, streakGraceDays:1,
+            benchTargetKg:100, weightBandKg:1.5, streakGraceDays:1, weekly_target:6,
             prefs:{sound_on:true, vibrate_on:true, wakelock_on:true, penalty_type:'pushups'} };
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600);}
@@ -548,8 +825,9 @@ function seg(id,cb){document.querySelectorAll('#'+id+' button').forEach(b=>b.onc
   document.querySelectorAll('#'+id+' button').forEach(x=>x.classList.remove('sel'));
   b.classList.add('sel');cb&&cb(b.dataset.v);});}
 let ci={sleep:null,time:null,energy:null,sore:'ninguna',recovery:''};
-seg('ci_time',v=>ci.time=+v); seg('ci_energy',v=>ci.energy=+v);
-seg('ci_sore',v=>ci.sore=v); seg('ci_recovery',v=>ci.recovery=v);
+seg('ci_time',v=>{ci.time=+v;recomputeCheckin();});
+seg('ci_energy',v=>{ci.energy=+v;recomputeCheckin();});
+seg('ci_sore',v=>{ci.sore=v;recomputeCheckin();});
 document.getElementById('ci_sleep').oninput=e=>ci.sleep=parseFloat(e.target.value)||null;
 
 /* Arranca en null = "desconocido". Una sonda previa (probeCheckinSchema) lo fija
@@ -563,42 +841,192 @@ async function probeCheckinSchema(){
   const probe=await sb.from('checkins').select('active_recovery').limit(1);
   CHECKIN_HAS_RECOVERY = !probe.error;
 }
-document.getElementById('ci_save').onclick=async()=>{
-  await probeCheckinSchema(); // saber si active_recovery existe antes de insertar
-  const base={date:todayISO,sleep_hours:ci.sleep,energy:ci.energy,soreness:ci.sore,time_available:ci.time};
-  const payload=CHECKIN_HAS_RECOVERY && ci.recovery ? {...base, active_recovery:ci.recovery} : base;
-  let {error}=await sb.from('checkins').insert(payload);
-  if(error && ci.recovery){ // columna active_recovery aun no existe -> reintento sin ella
-    CHECKIN_HAS_RECOVERY=false;
-    await sb.from('checkins').insert(base);
+
+/* ====================================================================
+   RECOMENDADOR POR REGLAS (Fase 1, determinista — la IA real va en Fase 2).
+   Decide el enfoque del día a partir de racha + energía + tiempo + molestia.
+   No lo elige el usuario: la app propone descanso activo (nado/spa) cuando toca.
+   ==================================================================== */
+let STREAK_CUR=0, TRAINED_WEEK=0, TARGET_DAYS=4, LAST_VERDICT=null;
+
+function recommender(streak, energia, tiempo, molestia, trainedThisWeek, targetDays){
+  energia = energia || 3;
+  tiempo  = tiempo  || 60;
+  molestia = molestia || 'ninguna';
+  trainedThisWeek = trainedThisWeek || 0;
+  targetDays = targetDays || 4;
+  const weekDone = targetDays>0 && trainedThisWeek >= targetDays;
+
+  // --- 1) DESCANSO ACTIVO (no se entrena con cargas) ---
+  const highStreak = streak >= 3;
+  const drained    = energia <= 2;
+  if (highStreak || drained || weekDone){
+    const rec = drained ? 'spa' : 'nado';
+    let head, detail;
+    if (drained){
+      head   = 'Hoy toca recuperar';
+      detail = `Energía a ${energia}/5${streak>=3?` y ${streak} días de racha`:''}. Fuerza no, recuperación sí: spa o nado suave 20-25 min. Mañana vuelves más fuerte.`;
+    } else if (weekDone){
+      head   = '¡Semana cumplida! Te mereces un descanso';
+      detail = `Ya hiciste ${trainedThisWeek}/${targetDays} entrenos esta semana y llevas ${streak} días de racha. Recuperación activa: nado 20 min o spa. Cuenta para la racha igual.`;
+    } else {
+      head   = 'Te mereces un descanso';
+      detail = `${streak} días seguidos. Descarga con nado suave o spa para no acumular fatiga. Mantienes la racha sin quemarte.`;
+    }
+    return { mode:'descanso_activo', launch:false, activeRecovery:rec,
+      volumeDelta:0, timeCap:null, icon:'🏊', headline:head, detail,
+      cta: rec==='spa' ? 'Marcar spa de recuperación' : 'Marcar nado de recuperación' };
   }
-  const out=document.getElementById('ci_out');out.style.display='block';
-  let msg;
-  if((ci.energy&&ci.energy<=2) || (ci.sleep&&ci.sleep<5)){
-    msg='🟥 Hoy vas justo. Si te puede el cuerpo, haz la sesión a volumen recortado (quita 1 serie por ejercicio). Si no, vete al agua: 5 largos + spa y mañana a tope.';
-  }else if(ci.energy===3){
-    msg='🟧 Día medio. Haz la sesión completa pero sin buscar PR — deja 2-3 reps en recámara en todo.';
-  }else if(ci.energy&&ci.energy>=4){
-    msg='🟩 Verde. A por la sesión completa y pelea por batir los pesos de la última vez.';
-  }else{msg='Marca tu energía para que te ajuste el día.';}
-  if(ci.sore&&ci.sore!=='ninguna') msg+=` ⚠️ Molestia en ${ci.sore}: evita cargar esa zona, te cambio el ejercicio si hace falta.`;
-  if(ci.recovery) msg+=` 🏊 Recuperación activa (${ci.recovery}) cuenta para tu racha.`;
-  out.textContent=msg;toast('Check-in guardado');
-  renderGamification();
+
+  // --- 2) ENTRENAR (con o sin recorte) ---
+  let volumeDelta = 0, timeCap = null;
+  const reasons = [];
+  if (energia === 3){ volumeDelta = -1; reasons.push('energía media: quito 1 serie por ejercicio y entrenas a 2-3 RIR'); }
+  if (tiempo <= 20){ timeCap = 3; volumeDelta = Math.min(volumeDelta, -1);
+    reasons.push('20 min: solo los 3 ejercicios principales, sin rampas largas'); }
+  else if (tiempo <= 30){ timeCap = 4; if(volumeDelta===0) volumeDelta = -1;
+    reasons.push('30 min: sesión comprimida a lo esencial'); }
+  else if (tiempo <= 45){ if(volumeDelta===0 && energia<5) reasons.push('45 min: ritmo ágil, descansos justos'); }
+
+  let sorenote = '';
+  if (molestia && molestia !== 'ninguna'){
+    sorenote = ` ⚠️ Molestia en ${molestia}: evita cargar esa zona; salta o sustituye lo que tire de ahí.`;
+  }
+
+  const recortado = volumeDelta < 0 || timeCap !== null;
+  if (recortado){
+    return { mode:'volumen_recortado', launch:true, activeRecovery:'',
+      volumeDelta, timeCap, icon:'🟧',
+      headline:'Sesión recortada, pero sesión',
+      detail: (reasons.join('. ') || 'Versión comprimida') + '.' + sorenote,
+      cta:'Empezar versión corta' };
+  }
+
+  return { mode:'normal', launch:true, activeRecovery:'',
+    volumeDelta:0, timeCap:null, icon:'🟩',
+    headline: energia>=4 ? '¡Verde! A por todas' : 'Sesión completa',
+    detail: (energia>=4
+      ? 'Energía alta y tiempo de sobra. Pelea por batir los pesos de la última vez.'
+      : 'Haz la sesión completa a buen ritmo.') + sorenote,
+    cta:'Empezar entreno' };
+}
+
+/* Aplica el recorte del veredicto al plan ANTES de instanciar el motor.
+   timeCap: deja los primeros N ejercicios. volumeDelta(<0): quita las últimas
+   N series efectivas de cada ejercicio (deja >=1 efectiva, preserva warmup/approach). */
+function applyRecommendation(sets, verdict){
+  if(!verdict || (!verdict.volumeDelta && verdict.timeCap==null)) return sets;
+  let out=[...sets];
+  if(verdict.timeCap!=null){
+    const order=[]; const seen=new Set();
+    out.forEach(s=>{ if(!seen.has(s.exercise_id)){ seen.add(s.exercise_id); order.push(s.exercise_id); } });
+    const keep=new Set(order.slice(0, verdict.timeCap));
+    out=out.filter(s=>keep.has(s.exercise_id));
+  }
+  if(verdict.volumeDelta<0){
+    const cut=Math.abs(verdict.volumeDelta);
+    const byEx={}; out.forEach(s=>{ (byEx[s.exercise_id] ||= []).push(s); });
+    const drop=new Set();
+    for(const id in byEx){
+      const working=byEx[id].filter(s=>isWorking(s));
+      const removable=Math.min(cut, Math.max(0, working.length-1));
+      working.slice(working.length-removable).forEach(s=>drop.add(s.id));
+    }
+    out=out.filter(s=>!drop.has(s.id));
+  }
+  return out;
+}
+
+/* recalcula el veredicto y repinta el modal cada vez que cambia un input */
+function recomputeCheckin(){
+  const v=recommender(STREAK_CUR, ci.energy, ci.time, ci.sore, TRAINED_WEEK, TARGET_DAYS);
+  LAST_VERDICT=v;
+  const box=document.getElementById('ci_verdict'); if(box) box.dataset.mode=v.mode;
+  const ico=document.getElementById('ci_v_ico'); if(ico) ico.textContent=v.icon;
+  const head=document.getElementById('ci_v_head'); if(head) head.textContent=v.headline;
+  const det=document.getElementById('ci_v_detail'); if(det) det.textContent=v.detail;
+  const go=document.getElementById('ci_save');
+  const ready=!!(ci.energy && ci.time);
+  go.disabled=!ready;
+  go.textContent=ready ? v.cta : 'Marca energía y tiempo';
+  go.className='btn '+(ready ? (v.mode==='descanso_activo'?'rest':v.mode==='volumen_recortado'?'cut':'') : '');
+}
+
+/* precarga racha + objetivo + entrenos de la semana para el recomendador */
+async function preloadCheckinContext(){
+  TARGET_DAYS=CFG.weekly_target||4;
+  try{ const {data}=await sb.from('streaks').select('current_streak').eq('id',1).maybeSingle();
+       STREAK_CUR=(data&&data.current_streak)||0; }catch(_){ STREAK_CUR=0; }
+  const monday=(()=>{ const d=new Date(todayISO+'T00:00:00'); const dow=(d.getDay()+6)%7; d.setDate(d.getDate()-dow); return d; })();
+  const mondayISO=dayKey(monday);
+  try{
+    const {data}=await sb.from('workouts').select('date').gte('date',mondayISO).lte('date',todayISO);
+    TRAINED_WEEK=new Set((data||[]).map(w=>dayKey(w.date))).size;
+  }catch(_){ TRAINED_WEEK=0; }
+}
+
+/* ----- popup check-in: abre antes de entrenar, encadena a startGuided ----- */
+async function openCheckin(){
+  document.getElementById('checkinModal').classList.add('show');
+  /* pizarra limpia: cada apertura resetea el estado del check-in para no
+     arrastrar valores de una sesión anterior (energía/tiempo/sueño/molestia). */
+  ci={sleep:null,time:null,energy:null,sore:'ninguna',recovery:''};
+  document.querySelectorAll('#ci_time button,#ci_energy button').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('#ci_sore button').forEach(b=>b.classList.toggle('sel',b.dataset.v==='ninguna'));
+  document.getElementById('ci_sleep').value='';
+  await preloadCheckinContext();
+  recomputeCheckin();
+}
+function closeCheckin(){ document.getElementById('checkinModal').classList.remove('show'); }
+window.closeCheckin=closeCheckin;
+window.openCheckin=openCheckin;
+document.getElementById('ci_close').onclick=closeCheckin;
+document.getElementById('ci_skip').onclick=()=>{ closeCheckin(); startGuided(); };
+
+/* persiste el check-in con la recuperación activa que DECIDE el recomendador
+   (degrada si active_recovery no existe). */
+async function persistCheckin(v){
+  await probeCheckinSchema();
+  const base={date:todayISO,sleep_hours:ci.sleep,energy:ci.energy,soreness:ci.sore,time_available:ci.time};
+  const rec=v&&v.activeRecovery;
+  const payload=(CHECKIN_HAS_RECOVERY && rec) ? {...base, active_recovery:rec} : base;
+  let {error}=await sb.from('checkins').insert(payload);
+  if(error && rec){ CHECKIN_HAS_RECOVERY=false; await sb.from('checkins').insert(base); }
+}
+
+document.getElementById('ci_save').onclick=async()=>{
+  const v=LAST_VERDICT; if(!v) return;
+  await persistCheckin(v);
+  if(!v.launch){
+    // DESCANSO ACTIVO: no se entrena con cargas; la racha cuenta vía active_recovery
+    closeCheckin();
+    toast(v.activeRecovery==='spa'?'Spa de recuperación marcado 🧖':'Nado de recuperación marcado 🏊');
+    await renderGamification();
+    await renderHomeStreak();
+    return;
+  }
+  closeCheckin();
+  const tunedSets=applyRecommendation(CUR_SETS, v);
+  startGuided({ sets: tunedSets });
 };
 
 /* ====================================================================
    PESO
    ==================================================================== */
+function setBwInfo(kg){
+  const el=document.getElementById('bwInfo');
+  if(el && kg!=null){ el.style.display='block'; el.textContent=`Último peso anotado: ${kg} kg`; }
+}
 document.getElementById('bw_save').onclick=async()=>{
   const v=parseFloat(document.getElementById('bw').value);
   if(!v){toast('Pon un peso');return;}
   await sb.from('bodyweight_logs').insert({date:todayISO,weight_kg:v,source:'manual'});
-  document.getElementById('bwpill').textContent=v+' kg';toast('Peso anotado');
+  setBwInfo(v); toast('Peso anotado');
   renderGamification();
+  renderWeightChart();
 };
 (async()=>{const {data}=await sb.from('bodyweight_logs').select('weight_kg').order('date',{ascending:false}).limit(1);
-  if(data&&data[0])document.getElementById('bwpill').textContent=data[0].weight_kg+' kg';})();
+  if(data&&data[0]) setBwInfo(data[0].weight_kg);})();
 
 /* ====================================================================
    PERFIL / PREFERENCIAS (degrada si las columnas no existen)
@@ -606,15 +1034,23 @@ document.getElementById('bw_save').onclick=async()=>{
 async function loadProfilePrefs(){
   // pedimos columnas v2; si no existen, supabase-js devuelve error -> reintento minimo
   let res=await sb.from('profile')
-    .select('prep_seconds,default_rest_seconds,rest_penalty_seconds,default_work_seconds,default_set_mode,prefs')
+    .select('prep_seconds,default_rest_seconds,rest_penalty_seconds,default_work_seconds,default_set_mode,training_days,prefs')
     .eq('id',1).maybeSingle();
-  if(res.error){ return; } // perfil v0.1: usamos defaults CFG
+  if(res.error){
+    // posible: la columna training_days no existe en esta BD -> reintento sin ella
+    let res2=await sb.from('profile')
+      .select('prep_seconds,default_rest_seconds,rest_penalty_seconds,default_work_seconds,default_set_mode,prefs')
+      .eq('id',1).maybeSingle();
+    if(res2.error){ return; } // perfil v0.1: usamos defaults CFG
+    res=res2;
+  }
   const p=res.data; if(!p) return;
   if(p.prep_seconds!=null) CFG.prep_seconds=p.prep_seconds;
   if(p.default_rest_seconds!=null) CFG.default_rest_seconds=p.default_rest_seconds;
   if(p.rest_penalty_seconds!=null) CFG.rest_penalty_seconds=p.rest_penalty_seconds;
   if(p.default_work_seconds!=null) CFG.default_work_seconds=p.default_work_seconds;
   if(p.default_set_mode) CFG.default_set_mode=p.default_set_mode;
+  CFG.weekly_target = (p.training_days!=null) ? p.training_days : 6; // fallback seguro
   if(p.prefs && typeof p.prefs==='object') CFG.prefs=Object.assign(CFG.prefs,p.prefs);
 }
 
@@ -654,20 +1090,109 @@ async function loadSession(){
   const title=document.getElementById('session_title');const cont=document.getElementById('sets');
   if(!w||!w.length){
     CUR_WORKOUT=null;CUR_SETS=[];
-    title.textContent='Sin sesión para hoy';
-    cont.innerHTML='<div class="empty">No hay entreno programado para hoy.<br>Pídeselo al coach.</div>';
-    const sb_btn=document.getElementById('startBtn'); const sb_sub=document.getElementById('startSub');
-    if(sb_btn){ sb_btn.disabled=true; sb_btn.textContent='Sin sesión para hoy'; }
-    if(sb_sub){ sb_sub.textContent='No hay entreno programado. Pídeselo al coach.'; }
+    if(title) title.textContent='Sin sesión para hoy';
+    if(cont) cont.innerHTML='<div class="empty">No hay entreno programado para hoy.<br>Pídeselo al coach.</div>';
+    renderHomeHero(); renderWorkoutList(); await renderHomeStreak();
+    syncEntrenarView(0,0,0);
     return;
   }
-  const wk=w[0];CUR_WORKOUT=wk;title.textContent=wk.day_label||'Sesión de hoy';
+  const wk=w[0];CUR_WORKOUT=wk;if(title) title.textContent=wk.day_label||'Sesión de hoy';
   const {data:sets}=await sb.from('workout_sets')
     .select('*, exercises(name,muscle_group,equipment,demo_video_url)')
     .eq('workout_id',wk.id).order('id',{ascending:true});
   CUR_SETS=sets||[];
   detectSchema(CUR_SETS[0]);
   renderOverview();
+  renderHomeHero(); renderWorkoutList(); await renderHomeStreak();
+}
+
+/* ===== HOME Symmetry: banner de racha (streaks + sesiones de la semana vs training_days) ===== */
+async function renderHomeStreak(){
+  const target=CFG.weekly_target||4;
+  let cur=0;
+  try{ const {data}=await sb.from('streaks').select('current_streak').eq('id',1).maybeSingle();
+       if(data) cur=data.current_streak||0; }catch(_){}
+  // lunes de esta semana (ISO, lunes->domingo)
+  const monday=(()=>{ const d=new Date(todayISO+'T00:00:00'); const dow=(d.getDay()+6)%7; d.setDate(d.getDate()-dow); return d; })();
+  const mondayISO=dayKey(monday);
+  let doneSet=new Set();
+  try{
+    const {data}=await sb.from('workouts').select('date').gte('date',mondayISO).lte('date',todayISO);
+    (data||[]).forEach(w=>doneSet.add(dayKey(w.date)));
+  }catch(_){}
+  const doneThisWeek=doneSet.size;
+  const remaining=Math.max(0, target-doneThisWeek);
+
+  const chip=document.getElementById('streakchip'); if(chip) chip.textContent=`🔥 ${cur}`;
+  const main=document.getElementById('sbMain');
+  const sub=document.getElementById('sbSub');
+  if(main) main.textContent = cur>0 ? `Llevas ${cur} ${cur===1?'día':'días'} de racha` : 'Aún no tienes racha';
+  if(sub) sub.textContent = remaining>0
+    ? `Te quedan ${remaining} de ${target} entrenos esta semana`
+    : `¡Semana completa! ${doneThisWeek}/${target} entrenos hechos 🎉`;
+
+  const week=[]; const c=new Date(monday);
+  for(let i=0;i<7;i++){ const k=dayKey(c); week.push({on:doneSet.has(k),today:k===todayISO}); c.setDate(c.getDate()+1); }
+  const wk=document.getElementById('sbWeek');
+  if(wk) wk.innerHTML=week.map(d=>`<span class="sb-dot ${d.on?'on':''} ${d.today?'today':''}"></span>`).join('');
+}
+
+/* ===== HOME Symmetry: card-héroe + lista "Tus Entrenamientos" ===== */
+const HERO_IMG='https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=900&auto=format&fit=crop';
+function estimateMins(){
+  const restAvg=(SCHEMA.target_rest_seconds)
+    ? Math.round(CUR_SETS.reduce((p,s)=>p+(s.target_rest_seconds||CFG.default_rest_seconds),0)/CUR_SETS.length)
+    : CFG.default_rest_seconds;
+  return Math.max(10, Math.round(CUR_SETS.length*(restAvg+45)/60));
+}
+function renderHomeHero(){
+  const hero=document.getElementById('heroToday');
+  const title=document.getElementById('heroTitle');
+  const meta=document.getElementById('heroMeta');
+  const img=document.getElementById('heroImg');
+  if(!hero) return;
+  if(!CUR_WORKOUT || !CUR_SETS.length){
+    hero.disabled=true;
+    title.textContent='Sin sesión hoy';
+    meta.textContent='No hay entreno programado · pídeselo al coach';
+    img.style.backgroundImage='linear-gradient(160deg,#1b2333,#0b0d12)';
+    return;
+  }
+  hero.disabled=false;
+  const nEx=new Set(CUR_SETS.map(s=>s.exercise_id)).size;
+  const doneN=CUR_SETS.filter(s=>s.done).length, total=CUR_SETS.length;
+  const cont=doneN>0 && doneN<total;
+  title.textContent=(CUR_WORKOUT.day_label||'Entreno de hoy');
+  meta.textContent=`${estimateMins()} min · ${nEx} ${nEx===1?'ejercicio':'ejercicios'}`+(cont?` · ${doneN}/${total} hechas`:'');
+  img.style.backgroundImage=`url('${HERO_IMG}'), linear-gradient(160deg,#1b2333,#0b0d12)`;
+  hero.onclick=()=>startTrainingFlow();
+}
+function renderWorkoutList(){
+  const host=document.getElementById('workoutList');
+  if(!host) return;
+  if(!CUR_WORKOUT || !CUR_SETS.length){ host.innerHTML='<div class="empty">No hay entreno programado para hoy.</div>'; return; }
+  const seen=[]; const names=[];
+  CUR_SETS.forEach(s=>{ if(!seen.includes(s.exercise_id)){ seen.push(s.exercise_id);
+    names.push((s.exercises&&s.exercises.name)||'Ejercicio'); }});
+  const exLine=names.join(', ');
+  host.innerHTML=`
+    <div class="wk-row" id="wkRowToday">
+      <div class="wk-thumb">🏋️</div>
+      <div class="wk-info">
+        <div class="wk-name">${CUR_WORKOUT.day_label||'Entreno de hoy'}</div>
+        <div class="wk-ex">${exLine}</div>
+      </div>
+      <div class="wk-more">›</div>
+    </div>`;
+  const row=document.getElementById('wkRowToday');
+  if(row) row.onclick=()=>startTrainingFlow();
+}
+
+/* "Entrenar"/héroe: abre el check-in (recomendador) -> startGuided. */
+function startTrainingFlow(){
+  const doneN=CUR_SETS.filter(s=>s.done).length, total=CUR_SETS.length;
+  if(doneN>0 && doneN<total){ startGuided(); return; } // continuar: directo
+  openCheckin();
 }
 
 /* "Hoy" = overview: resumen + boton Empezar + lista colapsada por ejercicio */
@@ -686,15 +1211,11 @@ function renderOverview(){
     <span class="sess-chip">${groupCount()} ejercicios</span>`;
   cont.appendChild(sum);
 
-  // CTA primario externo (sticky): solo se actualiza, no se recrea
-  const startBtn=document.getElementById('startBtn');
-  const startSub=document.getElementById('startSub');
-  startBtn.disabled=false;
-  startBtn.textContent = doneN>0 && doneN<total ? '▶ Continuar entreno' : '▶ Empezar entreno';
-  startBtn.onclick=()=>startGuided();
-  startSub.textContent = doneN>0 && doneN<total
-    ? `Llevas ${doneN}/${total} series. Sigue donde lo dejaste.`
-    : `${groupCount()} ejercicios · ${working} efectivas · manos libres.`;
+  // CTA primario del Home vive ahora en la card-héroe / lista (Symmetry).
+  // El #startBtn legacy fue retirado: el arranque pasa por startTrainingFlow().
+
+  // espejo del CTA en la vista Entrenar
+  syncEntrenarView(doneN, total, working);
 
   // detalle de la sesion (lista + rampas) dentro de un acordeon cerrado
   const det=document.createElement('details'); det.className='acc'; det.style.marginTop='12px';
@@ -1122,9 +1643,10 @@ const Player = (() => {
   let cb={}; let repVal=0;
   const el={};
   function cache(){
-    ['player','pl_mid','pl_phase','pl_ring','pl_prg','pl_num','pl_numsub','pl_exname',
-     'pl_setlbl','pl_type','pl_target','pl_prog','pl_barfill','pl_next','pl_go',
-     'pl_subrow','pl_back','pl_skip','pl_exit','pl_pause','pl_summary','pl_sum_big','pl_sum_line'
+    ['player','pl_mid','pl_visual','pl_imgph','pl_phase','pl_ring','pl_prg','pl_num','pl_numsub',
+     'pl_exname','pl_restbadge','pl_target','pl_prog','pl_rail','pl_tbody','pl_spark','pl_next','pl_go',
+     'pl_subrow','pl_back','pl_skip','pl_exit','pl_pause','pl_guide','pl_replace','pl_delete',
+     'pl_summary','pl_sum_big','pl_sum_line'
     ].forEach(k=>el[k]=$(k));
     el.pl_prg.style.strokeDasharray=RING_LEN;
   }
@@ -1135,20 +1657,25 @@ const Player = (() => {
     el.pl_pause.onclick= ()=>cb.onPause && cb.onPause();
     el.pl_back.onclick = ()=>cb.onBack && cb.onBack();
     el.pl_skip.onclick = ()=>cb.onSkip && cb.onSkip();
+    el.pl_spark.onclick   = ()=>cb.onSpark && cb.onSpark();
+    el.pl_guide.onclick   = ()=>cb.onGuide && cb.onGuide();
+    el.pl_replace.onclick = ()=>cb.onReplace && cb.onReplace();
+    el.pl_delete.onclick  = ()=>cb.onDelete && cb.onDelete();
   }
   function open(){ el.player.classList.add('show'); el.player.setAttribute('aria-hidden','false');
-    el.pl_summary.classList.remove('show'); el.pl_mid.style.display=''; }
+    el.pl_summary.classList.remove('show'); el.pl_mid.style.display=''; el.pl_rail.style.display='';
+    el.pl_rail.dataset.k=''; el.pl_rail.dataset.act=''; el.pl_tbody.dataset.sig=''; }
   function close(){ el.player.classList.remove('show'); el.player.setAttribute('aria-hidden','true'); }
   function swap(fn){
-    el.pl_mid.classList.add('swapping');
-    setTimeout(()=>{ fn&&fn(); el.pl_mid.classList.remove('swapping'); }, 180);
+    el.pl_visual.classList.add('swapping');
+    setTimeout(()=>{ fn&&fn(); el.pl_visual.classList.remove('swapping'); }, 180);
   }
   function render(vm){
-    el.pl_prog.textContent=vm.progress||'';
-    el.pl_barfill.style.width=Math.round((vm.progressPct||0)*100)+'%';
+    el.pl_prog.textContent=vm.clock||'0:00';
     el.pl_next.innerHTML=vm.next||'';
     el.pl_subrow.style.display=vm.showNav?'flex':'none';
 
+    // anillo + fase (area visual grande, identico al motor de hoy)
     el.pl_phase.textContent=vm.phaseLabel||'';
     el.pl_phase.className='pl-phase '+(vm.phase==='rest'?'rest':vm.phase==='penalty'?'pen':
       (vm.phase==='work_reps'||vm.phase==='work_time')?'work':'');
@@ -1161,24 +1688,60 @@ const Player = (() => {
     else { restoreRing(); el.pl_num.textContent=vm.bigNumber ?? ''; el.pl_numsub.textContent=vm.numSub||''; }
 
     el.pl_exname.textContent=vm.exName||'';
-    el.pl_setlbl.textContent=vm.setLabel||'';
-    el.pl_type.textContent=vm.setTypeLabel||'';
-    el.pl_type.className='pl-type '+(vm.setType||'working');
+    el.pl_restbadge.textContent='⏱ '+(vm.restSec||CFG.default_rest_seconds)+'s';
     el.pl_target.textContent=vm.target||'';
-    el.pl_target.style.display = (vm.phase==='reps_input') ? 'none' : 'block';
+    if(vm.phase==='penalty' && vm.penaltyText){ el.pl_target.textContent=vm.penaltyText; el.pl_target.style.color='var(--warn)'; }
+    else { el.pl_target.style.color=''; }
 
-    if(vm.phase==='penalty' && vm.penaltyText){
-      el.pl_target.style.display='block'; el.pl_target.textContent=vm.penaltyText; el.pl_target.style.color='var(--warn)';
-    } else { el.pl_target.style.color=''; }
+    renderRail(vm);
+    renderTable(vm);
 
     const p=vm.primary||{label:'',tone:'accent'};
     el.pl_go.textContent=p.label;
     el.pl_go.className='pl-go '+(p.tone && p.tone!=='accent' ? p.tone : '');
   }
+  // CARRUSEL: una bolita por ejercicio unico del plan; activa = la del exId actual
+  function renderRail(vm){
+    if(!vm.rail) return;
+    if(el.pl_rail.dataset.k!==vm.railKey){
+      el.pl_rail.dataset.k=vm.railKey;
+      el.pl_rail.innerHTML=vm.rail.map(r=>`<div class="pl2-dot${r.active?' active':''}${r.done?' done':''}" data-ex="${r.exId}">${r.icon}</div>`).join('');
+    } else {
+      el.pl_rail.querySelectorAll('.pl2-dot').forEach(d=>{ const r=vm.rail.find(x=>String(x.exId)===d.dataset.ex)||{};
+        d.className='pl2-dot'+(r.active?' active':'')+(r.done?' done':''); });
+    }
+    // solo auto-scroll cuando cambia el ejercicio activo (no en cada tick)
+    if(el.pl_rail.dataset.act!==String(vm.activeExId)){
+      el.pl_rail.dataset.act=String(vm.activeExId);
+      const a=el.pl_rail.querySelector('.pl2-dot.active'); if(a) a.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+    }
+  }
+  // TABLA: filas = series del ejercicio actual; activa = la del step actual (referencia robusta).
+  // Trampa de correctitud: NO re-crear los <input> de la fila activa en cada tick (perderia foco).
+  function renderTable(vm){
+    if(!vm.rows){ el.pl_tbody.innerHTML=''; return; }
+    const sig=vm.rows.map(r=>`${r.dbId}:${r.active?1:0}:${r.editable?1:0}:${r.done?1:0}`).join('|');
+    if(el.pl_tbody.dataset.sig===sig){
+      // misma estructura: refrescar SOLO previas/snum/chk de filas NO editables; dejar inputs intactos
+      return;
+    }
+    el.pl_tbody.dataset.sig=sig;
+    el.pl_tbody.innerHTML=vm.rows.map(r=>`
+      <div class="pl2-tr pl2-row ${r.active?'active':''} ${r.done?'done':''}" data-db="${r.dbId}">
+        <div class="pl2-snum">${r.n}</div>
+        <div class="pl2-prev">${r.prev||'—'}</div>
+        ${(r.active && r.editable)
+          ? `<input class="pl2-cell" id="pl_kg" inputmode="decimal" value="${r.kg??''}" placeholder="kg">
+             <input class="pl2-cell" id="pl_reps" inputmode="numeric" value="${r.reps??''}" placeholder="reps">`
+          : `<div class="pl2-cell">${r.kg??'—'}</div><div class="pl2-cell">${r.reps??'—'}</div>`}
+        <div class="pl2-chk">${r.done?'✓':''}</div>
+      </div>`).join('');
+  }
+  // logging de modo TIME: stepper sobre el anillo (AMRAP reps reales)
   function renderRepsInput(vm){
     repVal=vm.repDefault ?? 0;
     el.pl_ring.style.display='none';
-    let s=el.pl_mid.querySelector('.pl-stepper');
+    let s=el.pl_visual.querySelector('.pl-stepper');
     if(!s){
       s=document.createElement('div'); s.className='pl-stepper';
       s.innerHTML=`<div class="pl-step" data-d="-1">−</div>
@@ -1196,26 +1759,71 @@ const Player = (() => {
   }
   function restoreRing(){
     el.pl_ring.style.display='';
-    const s=el.pl_mid.querySelector('.pl-stepper'); if(s) s.style.display='none';
+    const s=el.pl_visual.querySelector('.pl-stepper'); if(s) s.style.display='none';
     el.pl_go.onclick=()=>cb.onPrimary && cb.onPrimary();
+  }
+  // lee los inputs editables de la fila activa (KG/REPES) — alimentan el motor
+  function readActiveInputs(){
+    const kgEl=$('pl_kg'), repEl=$('pl_reps');
+    const out={};
+    if(kgEl && kgEl.value!=='') out.weight=parseFloat(kgEl.value);
+    if(repEl && repEl.value!=='') out.reps=parseInt(repEl.value,10);
+    return out;
   }
   function showSummary(big, line, onClose){
     el.pl_mid.style.display='none';
+    el.pl_rail.style.display='none';
     el.pl_subrow.style.display='none';
     el.pl_summary.classList.add('show');
     el.pl_sum_big.textContent=big; el.pl_sum_line.textContent=line;
     el.pl_go.className='pl-go ok'; el.pl_go.textContent='Cerrar'; el.pl_go.onclick=onClose;
-    el.pl_prog.textContent='Sesión completada';
-    el.pl_barfill.style.width='100%';
+    el.pl_prog.textContent='✓';
   }
-  return { init, open, close, render, swap, showSummary };
+  return { init, open, close, render, swap, showSummary, readActiveInputs };
 })();
 
 /* ====================================================================
    PUENTE engine <-> player <-> persistencia
    ==================================================================== */
 let ENGINE=null;
+let SESSION_T0=0;  // timestamp de arranque de la sesion guiada (cronometro del header)
 const REST_TS={}; // mapa dbId -> Date.now() inicio descanso (para gamificacion persistRest)
+
+/* ---------- PREVIA: ultimo peso×reps por ejercicio (sesiones ANTERIORES) ----------
+   Se carga 1 vez al abrir sesion (startGuided) y se cachea. 100% lectura. */
+const PREVIA={};      // exId -> "kg × reps" (texto para la celda)
+const PREVIA_RAW={};  // exId -> {weight,reps,date}
+function clearPrevia(){ for(const k in PREVIA) delete PREVIA[k]; for(const k in PREVIA_RAW) delete PREVIA_RAW[k]; }
+async function loadPreviasFor(exIds){
+  clearPrevia();
+  if(!exIds || !exIds.length) return;
+  // 1 sola query agregada + reduccion en cliente (evita N+1). join workouts!inner
+  // permite filtrar por fecha < hoy. Degradacion SCHEMA/stOf como en el resto.
+  const sel='exercise_id,weight_kg,reps,done,is_warmup'+(SCHEMA.set_type?',set_type':'')+',workouts!inner(date)';
+  let resp;
+  try{
+    resp=await sb.from('workout_sets').select(sel)
+      .in('exercise_id', exIds).eq('done', true)
+      .lt('workouts.date', todayISO)
+      .order('exercise_id',{ascending:true})
+      .order('id',{ascending:false});   // mas reciente primero (id monotono por insercion)
+  }catch(_){ return; }
+  if(!resp || resp.error || !resp.data) return;
+  for(const r of resp.data){
+    if(!isWorking(r)) continue;                 // solo series efectivas
+    if(PREVIA_RAW[r.exercise_id]==null){
+      PREVIA_RAW[r.exercise_id]={ weight:r.weight_kg, reps:r.reps, date:r.workouts&&r.workouts.date };
+      PREVIA[r.exercise_id]=`${r.weight_kg} × ${r.reps}`;
+    }
+  }
+}
+/* sugerencia de sobrecarga progresiva por reglas sobre la PREVIA */
+function suggestProgressive(prev, equipment){
+  if(!prev) return null;
+  const step=(RAMP_DEFAULTS[equipment]||{}).minStep || 2.5;
+  if((prev.reps||0) < 12) return { weight:prev.weight, reps:(prev.reps||0)+1, why:'+1 rep' };
+  return { weight:(prev.weight||0)+step, reps:8, why:`+${step}kg` }; // techo reps -> sube peso
+}
 
 function planFromSets(sets){
   // ordena: si hay set_order lo usa; si no, por id (orden de insercion).
@@ -1264,8 +1872,37 @@ function snapToVM(snap){
     ? `OBJETIVO · ${st.weight!=null?st.weight+' kg · ':''}máximas reps en ${st.workSec||CFG.default_work_seconds}s`
     : `OBJETIVO · ${st.weight!=null?st.weight+' kg':'— kg'} × ${st.targetReps??'—'} reps`;
 
+  // ---- Symmetry: carrusel de ejercicios + tabla de series del ejercicio actual ----
+  let rail=[], railKey='', rows=[], activeExId=null;
+  if(ENGINE && ENGINE.plan && ENGINE.plan.length){
+    const curStep=ENGINE.plan[snap.stepIndex];          // referencia robusta del paso activo
+    const curExId=curStep ? curStep.exId : st.exId;
+    activeExId=curExId;
+    const exIds=[...new Set(ENGINE.plan.map(p=>p.exId))];
+    railKey=exIds.join(',');
+    rail=exIds.map(id=>{
+      const steps=ENGINE.plan.filter(p=>p.exId===id);
+      return { exId:id, icon:'🏋️',                       // HUECO icono ejercicio Fase2
+               active:id===curExId,
+               done:steps.every(s=>!!s._closed) };
+    });
+    const editable = snap.state===ST.WORK_REPS || snap.state===ST.LOGGING;
+    rows=ENGINE.plan.filter(p=>p.exId===curExId).map(p=>({
+      dbId:p.dbId, n:p._rampGroup,
+      prev:PREVIA[p.exId]||'',
+      kg:(p.weight!=null?p.weight:''),
+      reps:(p.repsDone!=null?p.repsDone:(p.targetReps!=null?p.targetReps:'')),
+      active:(p===curStep),                              // identidad de objeto, NO setNumber
+      editable,
+      done:!!p._closed
+    }));
+  }
+  // cronometro de sesion (header). Si no hay arranque, refleja el reloj de fase.
+  const clock = SESSION_T0 ? fmtClock(Math.max(0, Math.round((Date.now()-SESSION_T0)/1000))) : fmtClock(snap.secondsLeft||0);
+
   const base={ exName:st.exName, setLabel, setType:st.setType, setTypeLabel:typeLabel,
-    target:targetTxt, next, progress:progressTxt, progressPct, showNav:true };
+    target:targetTxt, next, progress:progressTxt, progressPct, showNav:true,
+    rail, railKey, rows, activeExId, clock, restSec:st.restSec };
 
   switch(snap.state){
     case ST.PREP:
@@ -1325,10 +1962,34 @@ function paintFromSnap(snap, withSwap){
   if(withSwap) Player.swap(()=>Player.render(vm)); else Player.render(vm);
 }
 
-async function startGuided(){
+/* recorta la ÚLTIMA serie efectiva no hecha de cada ejercicio (día rojo) */
+function trimOneWorkingPerExercise(sets){
+  const byEx={}; sets.forEach(s=>{ (byEx[s.exercise_id] ||= []).push(s); });
+  const drop=new Set();
+  for(const exId in byEx){
+    const work=byEx[exId].filter(s=>isWorking(s) && !s.done);
+    if(work.length>=2){ drop.add(work[work.length-1].id); }
+  }
+  return sets.filter(s=>!drop.has(s.id));
+}
+
+async function startGuided(opts){
+  opts=opts||{};
   if(!CUR_SETS.length){ toast('No hay sesión'); return; }
   await loadProfilePrefs();
-  const plan=planFromSets(CUR_SETS);
+  let planSets=CUR_SETS;
+  if(Array.isArray(opts.sets) && opts.sets.length){
+    // plan ya recortado por el recomendador (volumen/tiempo). No destructivo.
+    planSets=opts.sets;
+    if(opts.sets.length<CUR_SETS.length) toast('Sesión ajustada a tu día');
+  } else if(opts.trimWorking){
+    planSets=trimOneWorkingPerExercise(CUR_SETS);
+    toast('Volumen recortado para hoy');
+  }
+  const plan=planFromSets(planSets);
+  // PREVIA: 1 query cacheada con el ultimo peso×reps historico de cada ejercicio del plan
+  await loadPreviasFor([...new Set(planSets.map(s=>s.exercise_id))]);
+  SESSION_T0=Date.now();
   ENGINE=new ForjaEngine(plan, {
     prepSec:CFG.prep_seconds, longRestSec:CFG.rest_penalty_seconds, defaultRestSec:CFG.default_rest_seconds,
     // Manos libres: en modo reps "Serie hecha" cierra Y confirma en UN solo toque
@@ -1403,10 +2064,23 @@ async function startGuided(){
                      else {ENGINE.pause();document.getElementById('pl_pause').textContent='▶';} },
     onSkip:    ()=>{ if(ENGINE) ENGINE.skip(); },
     onBack:    ()=>{ if(ENGINE) ENGINE.back(); },
-    onExit:    ()=>closeGuided()
+    onExit:    ()=>closeGuided(),
+    // ✨ sobrecarga progresiva: escribe la sugerencia en los inputs KG/REPES de la fila activa
+    onSpark:   ()=>{
+      if(!ENGINE) return;
+      const s=ENGINE.plan[ENGINE.i]; if(!s){ return; }
+      const prev=PREVIA_RAW[s.exId];
+      const sug=suggestProgressive(prev, s.equipment);
+      if(!sug){ toast('Sin histórico para sugerir'); return; }
+      const kgEl=document.getElementById('pl_kg'), repEl=document.getElementById('pl_reps');
+      if(kgEl) kgEl.value=sug.weight; if(repEl) repEl.value=sug.reps;
+      vibe(10); toast('Sobrecarga ✨ '+sug.why);
+    },
+    onGuide:   ()=>toast('Guía — próximamente'),
+    onReplace: ()=>toast('Reemplazar — próximamente'),
+    onDelete:  ()=>toast('Borrar — próximamente')
   });
 
-  document.getElementById('timerbar').classList.add('hidden'); // no duplicar descanso
   Player.open();
   ENGINE.start();
 }
@@ -1417,7 +2091,18 @@ function handlePrimary(){
   switch(ENGINE.state){
     case ST.PREP:        // empezar ya: saltar la cuenta atras
       ENGINE.secLeft=0; break;
-    case ST.WORK_REPS:   ENGINE.setDone(); break;
+    case ST.WORK_REPS:{
+      // Manos libres con autoConfirmReps: "Serie hecha" cierra Y confirma de golpe.
+      // Volcamos los inputs KG/REPES editados a la serie ANTES de cerrar, para que
+      // onSetClosed persista la edicion del usuario (no el target original).
+      const edit=Player.readActiveInputs();
+      const cur=ENGINE._cur && ENGINE._cur();
+      if(cur){
+        if(edit.weight!=null && !Number.isNaN(edit.weight)) cur.weight=edit.weight;
+        if(edit.reps!=null && !Number.isNaN(edit.reps)) cur.repsDone=edit.reps;
+      }
+      ENGINE.setDone(); break;
+    }
     case ST.WORK_TIME:   ENGINE.finishWorkTime(); break;
     case ST.LOGGING:     ENGINE.confirmLog(null); break;
     case ST.REST:        ENGINE.skipRest(); break;
@@ -1427,8 +2112,8 @@ function handlePrimary(){
 
 function closeGuided(){
   if(ENGINE){ ENGINE.stop(); ENGINE=null; }
+  SESSION_T0=0;
   Player.close();
-  document.getElementById('timerbar').classList.remove('hidden');
   loadSession();        // refresca overview con lo guardado
   renderGamification();
 }
@@ -1646,7 +2331,7 @@ async function renderGamification(){
   await evaluateAchievements(snap, derived);
 
   document.getElementById('streakchip').textContent=`🔥 ${streak.current}`;
-  const gb=document.getElementById('gam_badge'); if(gb) gb.textContent=`🔥 ${streak.current}`;
+  renderStreakHero(streak);
 
   const dots=streak.last7.map(x=>`<span class="sdot ${x.on?'on':'off'}"></span>`).join('');
   const badges=ACHIEVEMENTS.map(a=>{
@@ -1659,7 +2344,7 @@ async function renderGamification(){
   const R=52, C=2*Math.PI*R, off=C*(1-recomp.benchPct/100);
 
   host.innerHTML=`
-    <h2>Progreso</h2>
+    <h2>Recomposición y logros</h2>
     <div class="recomp-row">
       <svg width="128" height="128" viewBox="0 0 128 128" class="ring" aria-hidden="true">
         <circle cx="64" cy="64" r="${R}" stroke="var(--stroke)" stroke-width="10" fill="none"/>
@@ -1681,16 +2366,229 @@ async function renderGamification(){
 }
 
 /* ====================================================================
-   TIMER de descanso libre (overview, v0.1)
+   ROUTER SPA — barra inferior de 5 pestañas
    ==================================================================== */
-let tInt,tLeft=0;
-function fmt(s){return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;}
-function startTimer(s){stopTimer();tLeft=s;document.getElementById('tdisp').textContent=fmt(tLeft);
-  tInt=setInterval(()=>{tLeft--;document.getElementById('tdisp').textContent=tLeft<=0?'¡Ya!':fmt(tLeft);
-    if(tLeft<=0){stopTimer();vibe([120,60,120]);beep();}},1000);}
-function stopTimer(){clearInterval(tInt);if(tLeft<=0)setTimeout(()=>document.getElementById('tdisp').textContent='Descanso',1500);else document.getElementById('tdisp').textContent='Descanso';}
-function beep(){if(!CFG.prefs.sound_on)return;try{const a=new(window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator();const g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;o.start();g.gain.setValueAtTime(.25,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.5);o.stop(a.currentTime+.5);}catch(e){}}
-window.startTimer=startTimer; window.stopTimer=stopTimer;
+const VIEWS=['hoy','entrenar','progreso','dieta','perfil'];
+function show(view){
+  if(!VIEWS.includes(view)) view='hoy';
+  VIEWS.forEach(v=>{
+    const el=document.getElementById('view-'+v);
+    if(el) el.classList.toggle('active', v===view);
+  });
+  document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('sel', b.dataset.go===view));
+  if(view==='progreso'){ renderProgresoExtras(); renderGamification(); renderWeightChart(); }
+  if(view==='perfil'){ renderWeeklyTarget(); renderProfileExtras(); }
+  if(view==='dieta'){ const i=document.getElementById('bwInfo'); }
+  window.scrollTo(0,0);
+}
+window.show=show;
+document.querySelectorAll('#tabbar button').forEach(b=>{ b.onclick=()=>show(b.dataset.go); });
+
+/* espejo del estado de sesión en la vista Entrenar */
+function syncEntrenarView(doneN,total,working){
+  const t=document.getElementById('ent_title');
+  const cont=document.getElementById('ent_sets');
+  const btn=document.getElementById('entStartBtn');
+  const sub=document.getElementById('entStartSub');
+  if(!btn) return;
+  if(!CUR_SETS.length){
+    if(t) t.textContent='Sin sesión para hoy';
+    if(cont) cont.innerHTML='No hay entreno programado para hoy.';
+    btn.disabled=true; btn.textContent='Sin sesión para hoy';
+    if(sub) sub.textContent='Pídeselo al coach.';
+    return;
+  }
+  if(t) t.textContent=(CUR_WORKOUT&&CUR_WORKOUT.day_label)||'Sesión de hoy';
+  if(cont) cont.innerHTML=`<div class="sess-sum">
+    <span class="sess-chip"><b>${doneN}</b>/${total} series</span>
+    <span class="sess-chip"><b>${working}</b> efectivas</span>
+    <span class="sess-chip">${groupCount()} ejercicios</span></div>`;
+  btn.disabled=false;
+  btn.textContent = doneN>0 && doneN<total ? '▶ Continuar entreno' : '▶ Empezar entreno';
+  btn.onclick=()=> (doneN>0 && doneN<total) ? startGuided() : openCheckin();
+  if(sub) sub.textContent = doneN>0 && doneN<total
+    ? `Llevas ${doneN}/${total} series. Sigue donde lo dejaste.`
+    : `${groupCount()} ejercicios · ${working} efectivas · manos libres.`;
+}
+
+/* ====================================================================
+   RACHA prominente en Home + contador "te quedan N"
+   ==================================================================== */
+function nextStreakMilestone(current){
+  for(const m of [7,30,90,180,365]){ if(current<m) return m; }
+  return Math.ceil((current+1)/365)*365;
+}
+function renderStreakHero(streak){
+  const flame=document.getElementById('sh_flame');
+  const big=document.getElementById('sh_big');
+  const sub=document.getElementById('sh_sub');
+  if(!big) return;
+  const cur=streak.current||0;
+  if(flame) flame.textContent='🔥';
+  big.textContent=`Llevas ${cur} ${cur===1?'día':'días'}`;
+  const dots=streak.last7.map(x=>`<span class="sdot ${x.on?'on':''}"></span>`).join('');
+  if(cur<=0){
+    sub.innerHTML=`Cierra tu primera sesión para arrancar la racha. <span class="streak7">${dots}</span>`;
+  }else{
+    const next=nextStreakMilestone(cur);
+    const left=next-cur;
+    sub.innerHTML=`Te quedan <b>${left}</b> para el hito de ${next} días. <span class="streak7">${dots}</span>`;
+  }
+}
+
+/* ====================================================================
+   OBJETIVO SEMANAL — sesiones de la semana ISO actual vs CFG.weekly_target
+   ==================================================================== */
+function sessionsThisWeek(snap){
+  const wk=isoWeek(todayISO);
+  const setsByWorkout={}; snap.sets.forEach(s=>{ (setsByWorkout[s.workout_id] ||= []).push(s); });
+  const days=new Set();
+  snap.workouts.forEach(w=>{
+    if(isoWeek(w.date)!==wk) return;
+    const list=setsByWorkout[w.id]||[];
+    if(list.some(s=>s.done && isWorking(s))) days.add(dayKey(w.date));
+  });
+  return days.size;
+}
+async function renderWeeklyTarget(){
+  const snap=await buildStatsSnapshot();
+  const done=sessionsThisWeek(snap);
+  const target=CFG.weekly_target ?? 6;
+  const left=Math.max(0, target-done);
+  const setTxt=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+  setTxt('pf_done',done); setTxt('pf_target',target); setTxt('pf_left',left);
+}
+
+/* ====================================================================
+   GRÁFICA DE PESO (sparkline SVG) + historial
+   ==================================================================== */
+function renderWeightChart(){
+  buildStatsSnapshot().then(snap=>{
+    const series=(snap.bw||[]).filter(x=>x.weight_kg!=null)
+      .map(x=>({date:dayKey(x.date), kg:+x.weight_kg}))
+      .sort((a,b)=>a.date<b.date?-1:1);
+    const chart=document.getElementById('weightChart');
+    const hist=document.getElementById('weightHist');
+    if(!chart) return;
+    if(!series.length){ chart.innerHTML='<div class="empty">Sin registros de peso todavía.</div>'; if(hist) hist.innerHTML=''; return; }
+    // sparkline
+    const W=480, H=120, pad=10;
+    const xs=series.map((_,i)=>i), ys=series.map(p=>p.kg);
+    const minY=Math.min(...ys), maxY=Math.max(...ys), span=(maxY-minY)||1;
+    const X=i=>series.length<=1?W/2:pad+(W-2*pad)*(i/(series.length-1));
+    const Y=v=>H-pad-(H-2*pad)*((v-minY)/span);
+    const pts=series.map((p,i)=>`${X(i).toFixed(1)},${Y(p.kg).toFixed(1)}`);
+    const linePath='M'+pts.join(' L');
+    const areaPath=`M${X(0).toFixed(1)},${(H-pad).toFixed(1)} L`+pts.join(' L')+` L${X(series.length-1).toFixed(1)},${(H-pad).toFixed(1)} Z`;
+    const dots=series.map((p,i)=>`<circle class="wdot" cx="${X(i).toFixed(1)}" cy="${Y(p.kg).toFixed(1)}" r="2.5"/>`).join('');
+    chart.innerHTML=`<svg class="wchart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+      <path class="warea" d="${areaPath}"/>
+      <path class="wline" d="${linePath}"/>
+      ${dots}
+    </svg>`;
+    // historial (más reciente primero, con delta)
+    if(hist){
+      const rev=[...series].reverse();
+      hist.innerHTML=rev.map((p,i)=>{
+        const prev=rev[i+1];
+        let d='', cls='flat';
+        if(prev){ const diff=+(p.kg-prev.kg).toFixed(1);
+          if(diff>0){ d='+'+diff; cls='up'; } else if(diff<0){ d=String(diff); cls='down'; } else { d='='; cls='flat'; } }
+        return `<div class="wh-row">
+          <div class="wh-date">${p.date}</div>
+          <div class="wh-kg">${p.kg} kg</div>
+          <div class="wh-d ${cls}">${d}</div></div>`;
+      }).join('');
+    }
+  });
+}
+
+/* ====================================================================
+   PROGRESO — stats de cabecera (volumen 7d · racha · sesiones),
+   delta de peso y HISTORIAL de entrenos expandible.
+   Reutiliza buildStatsSnapshot/computeStreak/isWorking/dayKey al 100%.
+   ==================================================================== */
+async function renderProgresoExtras(){
+  const snap=await buildStatsSnapshot();
+  const streak=computeStreak(snap);
+
+  // --- delta de peso (cabecera de la card de peso) ---
+  const valid=(snap.bw||[]).filter(p=>p.weight_kg!=null)
+    .map(p=>({date:dayKey(p.date),kg:+p.weight_kg})).sort((a,b)=>a.date<b.date?-1:1);
+  const nowEl=document.getElementById('bwNow'), dEl=document.getElementById('bwDelta');
+  if(nowEl && dEl){
+    if(valid.length){
+      const last=valid[valid.length-1].kg;
+      nowEl.textContent=last+' kg';
+      if(valid.length>=2){
+        const diff=Math.round((last-valid[0].kg)*10)/10;
+        dEl.textContent=(diff>0?'+':'')+diff+' kg desde inicio';
+        dEl.className='delta '+(diff>0?'up':(diff<0?'down':''));
+      } else { dEl.textContent=''; dEl.className='delta'; }
+    } else { nowEl.textContent='— kg'; dEl.textContent=''; dEl.className='delta'; }
+  }
+
+  // --- stats: volumen últimos 7 días, racha, sesiones totales ---
+  const since=new Date(todayISO+'T00:00:00'); since.setDate(since.getDate()-6);
+  const sinceK=dayKey(since);
+  const wkIds=new Set(snap.workouts.filter(w=>dayKey(w.date)>=sinceK).map(w=>w.id));
+  const tonWeek=snap.sets.filter(s=>wkIds.has(s.workout_id)&&isWorking(s)&&s.done)
+    .reduce((p,s)=>p+(s.weight_kg||0)*(s.reps||0),0);
+  const totalSessions=new Set(snap.workouts.map(w=>dayKey(w.date))).size;
+  const statsHost=document.getElementById('prgStats');
+  if(statsHost) statsHost.innerHTML=`
+    <div class="prg-stat"><div class="v">${(tonWeek/1000).toFixed(1)}<small> t</small></div><div class="l">Volumen 7d</div></div>
+    <div class="prg-stat"><div class="v">🔥 ${streak.current}</div><div class="l">Racha</div></div>
+    <div class="prg-stat"><div class="v">${totalSessions}</div><div class="l">Sesiones</div></div>`;
+
+  // --- historial de entrenos (más reciente arriba, expandible a detalle) ---
+  const setsByW={}; snap.sets.forEach(s=>{ (setsByW[s.workout_id] ||= []).push(s); });
+  const hist=[...snap.workouts].sort((a,b)=>dayKey(b.date).localeCompare(dayKey(a.date)));
+  const host=document.getElementById('prgHistory');
+  if(!host) return;
+  if(!hist.length){ host.innerHTML='<div class="empty">Aún no hay entrenos registrados.</div>'; return; }
+  host.innerHTML=hist.map(w=>{
+    const list=setsByW[w.id]||[];
+    const doneSets=list.filter(s=>s.done);
+    const working=doneSets.filter(isWorking);
+    const ton=working.reduce((p,s)=>p+(s.weight_kg||0)*(s.reps||0),0);
+    // detalle por ejercicio: nº series done × top peso × reps totales
+    const byEx={}; doneSets.forEach(s=>{ (byEx[s.exercise_id] ||= {n:(s.exercises&&s.exercises.name)||'Ejercicio',sets:[]}).sets.push(s); });
+    const exRows=Object.values(byEx).map(g=>{
+      const best=Math.max(0,...g.sets.map(s=>s.weight_kg||0));
+      const reps=g.sets.reduce((p,s)=>p+(s.reps||0),0);
+      return `<div class="hist-ex"><span class="n">${g.n}</span><span class="s">${g.sets.length}×series · top ${best||'—'} kg · ${reps} reps</span></div>`;
+    }).join('') || '<div class="hist-ex"><span class="n">Sin series completadas</span><span class="s"></span></div>';
+    const d=new Date(String(w.date).slice(0,10)+'T00:00:00');
+    const fdate=DOW[d.getDay()]+' '+String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');
+    return `<div class="hist-item">
+      <div class="hist-sum" onclick="this.parentNode.classList.toggle('open')">
+        <div><div class="dl">${w.day_label||'Sesión'}</div><div class="dt">${fdate}</div></div>
+        <div class="mr"><div class="ton">${ton?(ton/1000).toFixed(1)+' t':'—'}</div><div class="sr">${doneSets.length} series</div></div>
+        <span class="chev">▼</span>
+      </div>
+      <div class="hist-detail">${exRows}</div>
+    </div>`;
+  }).join('');
+}
+
+/* PERFIL — temporizadores del perfil (CFG ya hidratado) + racha/mejor */
+async function renderProfileExtras(){
+  const prefs=[
+    {v:CFG.prep_seconds+'s', l:'Preparación'},
+    {v:CFG.default_rest_seconds+'s', l:'Descanso'},
+    {v:CFG.rest_penalty_seconds+'s', l:'Límite descanso'},
+    {v:(CFG.default_set_mode==='time'?CFG.default_work_seconds+'s':'reps'), l:'Modo serie'},
+  ];
+  const host=document.getElementById('pf_prefs');
+  if(host) host.innerHTML=prefs.map(p=>`<div class="pf-pref"><div class="pv">${p.v}</div><div class="pl">${p.l}</div></div>`).join('');
+  // racha actual + mejor desde streaks (degrada a 0)
+  let cur=0,best=0;
+  try{ const {data}=await sb.from('streaks').select('current_streak,longest_streak').eq('id',1).maybeSingle();
+       if(data){ cur=data.current_streak||0; best=data.longest_streak||0; } }catch(_){}
+  const setTxt=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+  setTxt('pf_streak',cur); setTxt('pf_best',best);
+}
 
 /* ====================================================================
    ARRANQUE
@@ -1699,6 +2597,7 @@ window.startTimer=startTimer; window.stopTimer=stopTimer;
   await loadProfilePrefs();
   await loadSession();
   await renderGamification();
+  show('hoy');
 })();
 
 /* No perder la ultima edicion del overview si la PWA se va a background o se cierra */
