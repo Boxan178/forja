@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0B0F1A" />
+<title>Forja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0B0F1A; --accent:#2E9BFF; --accent-soft:rgba(46,155,255,.16);
+    --glass:rgba(255,255,255,.06); --glass-2:rgba(255,255,255,.09);
+    --stroke:rgba(255,255,255,.10); --txt:#EAF0FA; --muted:#8b97ad;
+    --ok:#34d399; --warn:#f5b14c;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    margin:0;font-family:'Manrope',system-ui,sans-serif;color:var(--txt);
+    background:
+      radial-gradient(900px 500px at 80% -10%, rgba(46,155,255,.18), transparent 60%),
+      radial-gradient(700px 500px at -10% 10%, rgba(46,155,255,.10), transparent 55%),
+      var(--bg);
+    background-attachment:fixed;min-height:100vh;
+    padding:env(safe-area-inset-top) 0 calc(96px + env(safe-area-inset-bottom));
+  }
+  .wrap{max-width:540px;margin:0 auto;padding:18px 16px}
+  h1{font-family:'Sora';font-weight:800;font-size:26px;letter-spacing:-.5px;margin:0}
+  .sub{color:var(--muted);font-size:13px;margin-top:2px}
+  .card{
+    background:var(--glass);border:1px solid var(--stroke);border-radius:20px;
+    backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);
+    padding:16px;margin-top:14px;box-shadow:0 10px 30px rgba(0,0,0,.25)
+  }
+  .card h2{font-family:'Sora';font-weight:700;font-size:15px;margin:0 0 12px;letter-spacing:.2px}
+  .row{display:flex;align-items:center;gap:10px}
+  .ex{margin-top:10px;padding-top:12px;border-top:1px solid var(--stroke)}
+  .ex:first-child{border-top:0;padding-top:0;margin-top:0}
+  .ex-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
+  .ex-name{font-family:'Sora';font-weight:600;font-size:15px}
+  .ex-tag{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;white-space:nowrap}
+  .set{display:grid;grid-template-columns:26px 1fr 1fr 1fr 40px;gap:8px;align-items:center;margin:6px 0}
+  .set.warm .si{opacity:.55}
+  .snum{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
+  .field{position:relative}
+  .field label{position:absolute;top:-7px;left:9px;font-size:9px;letter-spacing:.5px;color:var(--muted);padding:0 3px;text-transform:uppercase}
+  input.si{
+    width:100%;background:var(--glass-2);border:1px solid var(--stroke);border-radius:12px;
+    color:var(--txt);font-family:'Manrope';font-weight:600;font-size:16px;font-variant-numeric:tabular-nums;
+    text-align:center;padding:11px 4px;outline:none;transition:border-color .15s,background .15s
+  }
+  input.si:focus{border-color:var(--accent);background:var(--accent-soft)}
+  .unit{font-size:10px;color:var(--muted);text-align:center;margin-top:2px;letter-spacing:.5px}
+  .chk{
+    width:40px;height:40px;border-radius:13px;border:1px solid var(--stroke);background:var(--glass-2);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--muted);
+    transition:.15s;user-select:none
+  }
+  .chk.on{background:var(--ok);border-color:var(--ok);color:#04130c;font-weight:800}
+  .note{font-size:11px;color:var(--muted);margin:2px 0 0 34px}
+  .grid4{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .ipt{
+    width:100%;background:var(--glass-2);border:1px solid var(--stroke);border-radius:12px;color:var(--txt);
+    font-family:'Manrope';font-weight:600;font-size:15px;padding:12px;outline:none
+  }
+  .ipt:focus{border-color:var(--accent)}
+  .lbl{font-size:11px;color:var(--muted);margin:0 0 5px 2px;text-transform:uppercase;letter-spacing:.5px}
+  .btn{
+    width:100%;border:0;border-radius:14px;padding:13px;font-family:'Sora';font-weight:700;font-size:14px;
+    background:var(--accent);color:#031323;cursor:pointer;margin-top:12px;letter-spacing:.2px
+  }
+  .btn.ghost{background:var(--glass-2);color:var(--txt);border:1px solid var(--stroke)}
+  .seg{display:flex;gap:6px;flex-wrap:wrap}
+  .seg button{
+    flex:1;min-width:54px;background:var(--glass-2);border:1px solid var(--stroke);color:var(--txt);
+    border-radius:11px;padding:10px 6px;font-family:'Manrope';font-weight:600;font-size:14px;cursor:pointer
+  }
+  .seg button.sel{background:var(--accent);color:#031323;border-color:var(--accent)}
+  .pill{display:inline-block;background:var(--accent-soft);color:#bfe0ff;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600}
+  .suggest{margin-top:10px;font-size:13px;line-height:1.45;color:#cfe1f7;background:var(--accent-soft);border:1px solid var(--stroke);border-radius:13px;padding:11px 13px}
+  /* barra de descanso */
+  #timerbar{
+    position:fixed;left:0;right:0;bottom:0;z-index:50;
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+    background:rgba(11,15,26,.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-top:1px solid var(--stroke);display:flex;align-items:center;gap:10px
+  }
+  #timerbar .seg{flex:1}
+  #tdisp{font-family:'Sora';font-weight:800;font-size:22px;min-width:64px;text-align:center;font-variant-numeric:tabular-nums}
+  .muted{color:var(--muted)}
+  .toast{
+    position:fixed;left:50%;top:18px;transform:translateX(-50%) translateY(-30px);
+    background:var(--ok);color:#04130c;font-weight:700;font-size:13px;padding:9px 16px;border-radius:999px;
+    opacity:0;transition:.25s;z-index:99;font-family:'Sora'
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:14px}
+  .spin{display:inline-block;width:18px;height:18px;border:2px solid var(--stroke);border-top-color:var(--accent);border-radius:50%;animation:s .8s linear infinite}
+  @keyframes s{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="wrap">
+  <div class="row" style="justify-content:space-between;align-items:flex-end">
+    <div>
+      <h1>Forja</h1>
+      <div class="sub" id="dateline">—</div>
+    </div>
+    <div class="pill" id="bwpill">— kg</div>
+  </div>
+
+  <!-- CHECK-IN -->
+  <div class="card">
+    <h2>¿Cómo estás hoy?</h2>
+    <div class="grid4">
+      <div>
+        <div class="lbl">Horas de sueño</div>
+        <input class="ipt" id="ci_sleep" inputmode="decimal" placeholder="ej. 5.5" />
+      </div>
+      <div>
+        <div class="lbl">Tiempo hoy</div>
+        <div class="seg" id="ci_time">
+          <button data-v="30">30</button><button data-v="45">45</button>
+          <button data-v="60">60</button><button data-v="75">75</button>
+        </div>
+      </div>
+    </div>
+    <div class="lbl" style="margin-top:12px">Energía / ganas</div>
+    <div class="seg" id="ci_energy">
+      <button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button>
+      <button data-v="4">4</button><button data-v="5">5</button>
+    </div>
+    <div class="lbl" style="margin-top:12px">¿Molestia?</div>
+    <div class="seg" id="ci_sore">
+      <button data-v="ninguna">Ninguna</button><button data-v="dedo">Dedo</button>
+      <button data-v="tobillo">Tobillo</button><button data-v="hombro">Hombro</button>
+    </div>
+    <button class="btn" id="ci_save">Guardar check-in</button>
+    <div class="suggest" id="ci_out" style="display:none"></div>
+  </div>
+
+  <!-- PESO -->
+  <div class="card">
+    <h2>Peso de hoy</h2>
+    <div class="row">
+      <input class="ipt" id="bw" inputmode="decimal" placeholder="kg (ej. 79.2)" style="flex:1" />
+      <button class="btn ghost" id="bw_save" style="margin:0;width:auto;padding:12px 18px">Anotar</button>
+    </div>
+  </div>
+
+  <!-- SESION -->
+  <div class="card" id="session">
+    <h2 id="session_title"><span class="spin"></span> Cargando sesión…</h2>
+    <div id="sets"></div>
+  </div>
+
+  <div class="sub" style="text-align:center;margin-top:18px">Forja · v0.1 · datos en tu Supabase</div>
+</div>
+
+<!-- DESCANSO -->
+<div id="timerbar">
+  <span id="tdisp">Descanso</span>
+  <div class="seg">
+    <button onclick="startTimer(90)">90s</button>
+    <button onclick="startTimer(120)">2:00</button>
+    <button onclick="startTimer(180)">3:00</button>
+    <button onclick="stopTimer()" class="muted">✕</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPA_URL='https://gqoorsfyufktfnyqzudj.supabase.co';
+const SUPA_KEY='sb_publishable_Y4dyhwpjNYPZV8VjJzompQ_JUKuevgW';
+const sb=supabase.createClient(SUPA_URL,SUPA_KEY,{db:{schema:'trainer'}});
+
+const todayISO=(()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;})();
+const DOW=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+document.getElementById('dateline').textContent=`${DOW[new Date().getDay()]} · ${todayISO}`;
+
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1400);}
+
+// ---- segmented helpers
+function seg(id,cb){document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#'+id+' button').forEach(x=>x.classList.remove('sel'));
+  b.classList.add('sel');cb&&cb(b.dataset.v);});}
+let ci={sleep:null,time:null,energy:null,sore:'ninguna'};
+seg('ci_time',v=>ci.time=+v); seg('ci_energy',v=>ci.energy=+v); seg('ci_sore',v=>ci.sore=v);
+document.getElementById('ci_sleep').oninput=e=>ci.sleep=parseFloat(e.target.value)||null;
+
+document.getElementById('ci_save').onclick=async()=>{
+  await sb.from('checkins').insert({date:todayISO,sleep_hours:ci.sleep,energy:ci.energy,soreness:ci.sore,time_available:ci.time});
+  const out=document.getElementById('ci_out');out.style.display='block';
+  let msg;
+  if(ci.energy&&ci.energy<=2 || (ci.sleep&&ci.sleep<5)){
+    msg='🟥 Hoy vas justo. Si te puede el cuerpo, haz la sesión a volumen recortado (quita 1 serie por ejercicio). Si no, vete al agua: 5 largos + spa y mañana a tope.';
+  }else if(ci.energy===3){
+    msg='🟧 Día medio. Haz la sesión completa pero sin buscar PR — deja 2-3 reps en recámara en todo.';
+  }else if(ci.energy&&ci.energy>=4){
+    msg='🟩 Verde. A por la sesión completa y pelea por batir los pesos de la última vez.';
+  }else{msg='Marca tu energía para que te ajuste el día.';}
+  if(ci.sore&&ci.sore!=='ninguna') msg+=` ⚠️ Molestia en ${ci.sore}: evita cargar esa zona, te cambio el ejercicio si hace falta.`;
+  out.textContent=msg;toast('Check-in guardado');
+};
+
+document.getElementById('bw_save').onclick=async()=>{
+  const v=parseFloat(document.getElementById('bw').value);
+  if(!v){toast('Pon un peso');return;}
+  await sb.from('bodyweight_logs').insert({date:todayISO,weight_kg:v,source:'manual'});
+  document.getElementById('bwpill').textContent=v+' kg';toast('Peso anotado');
+};
+
+// ---- cargar ultimo peso
+(async()=>{const {data}=await sb.from('bodyweight_logs').select('weight_kg').order('date',{ascending:false}).limit(1);
+  if(data&&data[0])document.getElementById('bwpill').textContent=data[0].weight_kg+' kg';})();
+
+// ---- sesion de hoy
+let saveT;
+function saveSet(id,patch){clearTimeout(saveT);saveT=setTimeout(async()=>{
+  await sb.from('workout_sets').update(patch).eq('id',id);toast('Guardado ✓');},350);}
+
+async function loadSession(){
+  const {data:w}=await sb.from('workouts').select('*').eq('date',todayISO).order('id',{ascending:false}).limit(1);
+  const title=document.getElementById('session_title');const cont=document.getElementById('sets');
+  if(!w||!w.length){title.textContent='Sin sesión para hoy';cont.innerHTML='<div class="empty">No hay entreno programado para hoy.<br>Pídeselo al coach.</div>';return;}
+  const wk=w[0];title.textContent=wk.day_label||'Sesión de hoy';
+  const {data:sets}=await sb.from('workout_sets')
+    .select('*, exercises(name,muscle_group,equipment)').eq('workout_id',wk.id).order('id',{ascending:true});
+  cont.innerHTML='';
+  let curEx=null,box=null;
+  sets.forEach(s=>{
+    if(s.exercise_id!==curEx){
+      curEx=s.exercise_id;
+      box=document.createElement('div');box.className='ex';
+      box.innerHTML=`<div class="ex-head"><span class="ex-name">${s.exercises?.name||'Ejercicio'}</span>
+        <span class="ex-tag">${s.exercises?.muscle_group||''} · ${s.exercises?.equipment||''}</span></div>`;
+      cont.appendChild(box);
+    }
+    const r=document.createElement('div');r.className='set'+(s.is_warmup?' warm':'');
+    r.innerHTML=`
+      <div class="snum">${s.is_warmup?'W':s.set_number}</div>
+      <div><input class="si" inputmode="decimal" value="${s.weight_kg??''}" placeholder="–"><div class="unit">kg</div></div>
+      <div><input class="si" inputmode="numeric" value="${s.reps??''}" placeholder="–"><div class="unit">reps</div></div>
+      <div><input class="si" inputmode="numeric" value="${s.rir??''}" placeholder="–"><div class="unit">RIR</div></div>
+      <div class="chk${s.done?' on':''}">${s.done?'✓':''}</div>`;
+    const[wI,rI,rirI]=r.querySelectorAll('input');const chk=r.querySelector('.chk');
+    wI.oninput=()=>saveSet(s.id,{weight_kg:parseFloat(wI.value)||null});
+    rI.oninput=()=>saveSet(s.id,{reps:parseInt(rI.value)||null});
+    rirI.oninput=()=>saveSet(s.id,{rir:parseInt(rirI.value)||null});
+    chk.onclick=()=>{const on=!chk.classList.contains('on');chk.classList.toggle('on',on);chk.textContent=on?'✓':'';
+      saveSet(s.id,{done:on});if(on&&navigator.vibrate)navigator.vibrate(15);};
+    if(s.notes){const n=document.createElement('div');n.className='note';n.textContent=s.notes;box.appendChild(r);box.appendChild(n);}
+    else box.appendChild(r);
+  });
+}
+loadSession();
+
+// ---- timer descanso
+let tInt,tLeft=0;
+function fmt(s){return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;}
+function startTimer(s){stopTimer();tLeft=s;document.getElementById('tdisp').textContent=fmt(tLeft);
+  tInt=setInterval(()=>{tLeft--;document.getElementById('tdisp').textContent=tLeft<=0?'¡Ya!':fmt(tLeft);
+    if(tLeft<=0){stopTimer();if(navigator.vibrate)navigator.vibrate([120,60,120]);beep();}},1000);}
+function stopTimer(){clearInterval(tInt);if(tLeft<=0)setTimeout(()=>document.getElementById('tdisp').textContent='Descanso',1500);else document.getElementById('tdisp').textContent='Descanso';}
+function beep(){try{const a=new(window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator();const g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;o.start();g.gain.setValueAtTime(.25,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.5);o.stop(a.currentTime+.5);}catch(e){}}
+</script>
+</body>
+</html>
