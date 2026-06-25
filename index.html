@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0B0F1A" />
 <title>Forja</title>
+<!-- PWA: rutas RELATIVAS por el subpath /forja/ -->
+<link rel="manifest" href="./manifest.webmanifest" />
+<meta name="description" content="Forja — tu entrenador de hipertrofia y recomposicion. Modo entreno guiado manos libres." />
+<!-- iOS / Safari standalone -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Forja" />
+<link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
@@ -71,6 +82,7 @@
     background:var(--accent);color:#031323;cursor:pointer;margin-top:12px;letter-spacing:.2px
   }
   .btn.ghost{background:var(--glass-2);color:var(--txt);border:1px solid var(--stroke)}
+  .btn.ok{background:var(--ok);color:#04130c}
   .seg{display:flex;gap:6px;flex-wrap:wrap}
   .seg button{
     flex:1;min-width:54px;background:var(--glass-2);border:1px solid var(--stroke);color:var(--txt);
@@ -78,37 +90,201 @@
   }
   .seg button.sel{background:var(--accent);color:#031323;border-color:var(--accent)}
   .pill{display:inline-block;background:var(--accent-soft);color:#bfe0ff;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600}
+  .pill.streak{background:var(--glass-2);color:var(--txt);border:1px solid var(--stroke);font-family:'Sora';font-weight:800;font-variant-numeric:tabular-nums;margin-left:6px}
   .suggest{margin-top:10px;font-size:13px;line-height:1.45;color:#cfe1f7;background:var(--accent-soft);border:1px solid var(--stroke);border-radius:13px;padding:11px 13px}
-  /* barra de descanso */
+  /* barra de descanso libre (overview) */
   #timerbar{
     position:fixed;left:0;right:0;bottom:0;z-index:50;
     padding:10px 14px calc(10px + env(safe-area-inset-bottom));
     background:rgba(11,15,26,.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
     border-top:1px solid var(--stroke);display:flex;align-items:center;gap:10px
   }
+  #timerbar.hidden{display:none}
   #timerbar .seg{flex:1}
   #tdisp{font-family:'Sora';font-weight:800;font-size:22px;min-width:64px;text-align:center;font-variant-numeric:tabular-nums}
   .muted{color:var(--muted)}
   .toast{
     position:fixed;left:50%;top:18px;transform:translateX(-50%) translateY(-30px);
     background:var(--ok);color:#04130c;font-weight:700;font-size:13px;padding:9px 16px;border-radius:999px;
-    opacity:0;transition:.25s;z-index:99;font-family:'Sora'
+    opacity:0;transition:.25s;z-index:9999;font-family:'Sora';max-width:90vw;text-align:center
   }
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:14px}
   .spin{display:inline-block;width:18px;height:18px;border:2px solid var(--stroke);border-top-color:var(--accent);border-radius:50%;animation:s .8s linear infinite}
   @keyframes s{to{transform:rotate(360deg)}}
+  /* ---- Instalar PWA ---- */
+  #installCard{display:none}
+  #installCard .row{justify-content:space-between;gap:12px}
+  .inst-ico{width:44px;height:44px;border-radius:13px;flex:0 0 auto;border:1px solid var(--stroke);box-shadow:0 6px 18px rgba(0,0,0,.3)}
+  .inst-txt{flex:1;min-width:0}
+  .inst-txt .t{font-family:'Sora';font-weight:700;font-size:14px}
+  .inst-txt .d{color:var(--muted);font-size:12px;margin-top:2px;line-height:1.35}
+  #installBtn{margin:0;width:auto;flex:0 0 auto;padding:11px 16px;white-space:nowrap}
+  /* hoja de ayuda iOS / fallback "anadir a pantalla de inicio" */
+  #iosSheet{
+    position:fixed;inset:0;z-index:400;display:none;align-items:flex-end;justify-content:center;
+    background:rgba(4,7,13,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)
+  }
+  #iosSheet.show{display:flex}
+  #iosSheet .sheet{
+    width:100%;max-width:540px;background:#10182a;border:1px solid var(--stroke);
+    border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));
+    box-shadow:0 -10px 40px rgba(0,0,0,.5)
+  }
+  #iosSheet h3{font-family:'Sora';font-weight:800;font-size:18px;margin:4px 0 4px}
+  #iosSheet p{color:var(--muted);font-size:13px;line-height:1.5;margin:0 0 14px}
+  #iosSheet ol{margin:0 0 6px;padding-left:20px}
+  #iosSheet li{font-size:14px;line-height:1.7;margin-bottom:4px}
+  #iosSheet .ic{display:inline-flex;width:22px;height:22px;vertical-align:-5px;margin:0 2px;
+    align-items:center;justify-content:center;background:var(--accent-soft);border-radius:6px;color:#bfe0ff}
+
+  /* ===== Resumen de sesion en "Hoy" ===== */
+  .sess-sum{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 4px}
+  .sess-chip{font-size:12px;color:var(--muted);background:var(--glass-2);border:1px solid var(--stroke);
+    border-radius:999px;padding:5px 11px;font-variant-numeric:tabular-nums}
+  .sess-chip b{color:var(--txt)}
+  .sess-ex{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--stroke)}
+  .sess-ex:first-child{border-top:0}
+  .sess-ex .nm{font-family:'Sora';font-weight:600;font-size:14px}
+  .sess-ex .mt{font-size:11px;color:var(--muted)}
+  .sess-ex .cnt{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .sess-ex .cnt.done{color:var(--ok)}
+
+  /* ===== Rampa editable ===== */
+  .ramp{margin-top:8px;padding:10px;border:1px dashed var(--stroke);border-radius:14px;background:rgba(255,255,255,.03)}
+  .ramp .rh{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+  .ramp .rrow{display:grid;grid-template-columns:30px 1fr 1fr 34px;gap:8px;align-items:center;margin:5px 0}
+  .ramp .rrow .si{padding:9px 4px;font-size:15px}
+  .ramp .tag{font-size:10px;font-weight:700;text-align:center;border-radius:8px;padding:5px 0;letter-spacing:.4px}
+  .ramp .tag.warmup{color:var(--muted);background:var(--glass-2)}
+  .ramp .tag.approach{color:#bfe0ff;background:rgba(46,155,255,.12)}
+  .ramp .rm{width:34px;height:34px;border-radius:10px;border:1px solid var(--stroke);background:var(--glass-2);
+    color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px}
+  .ramp .radd{margin-top:6px;width:100%;background:var(--glass-2);border:1px dashed var(--stroke);color:var(--muted);
+    border-radius:11px;padding:9px;font-family:'Manrope';font-weight:600;font-size:13px;cursor:pointer}
+
+  /* ===== Gamificacion ===== */
+  .recomp-row{display:flex;gap:14px;align-items:center}
+  .ring-num{font-family:'Sora';font-weight:800;font-size:30px;fill:var(--txt);font-variant-numeric:tabular-nums}
+  .ring-sub{font-family:'Manrope';font-size:9px;fill:var(--muted)}
+  .recomp-side{flex:1;min-width:0}
+  .streak-big{font-family:'Sora';font-weight:800;font-size:26px}
+  .streak-big span{font-size:13px;color:var(--muted);font-weight:600}
+  .streak-sub{font-size:12px;color:var(--muted);margin-top:4px}
+  .streak7{display:inline-flex;gap:3px;vertical-align:middle}
+  .sdot{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--glass-2);border:1px solid var(--stroke)}
+  .sdot.on{background:var(--ok);border-color:var(--ok)}
+  .recomp-flag{margin-top:8px;font-size:12px;color:var(--muted);background:var(--glass-2);border:1px solid var(--stroke);border-radius:11px;padding:8px 10px;line-height:1.4}
+  .recomp-flag.ok{color:#bfe9d4;background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.3)}
+  .badges{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+  .badge{background:var(--glass-2);border:1px solid var(--stroke);border-radius:14px;padding:11px;opacity:.5}
+  .badge.on{opacity:1;border-color:rgba(46,155,255,.35);background:var(--accent-soft)}
+  .b-ico{font-size:22px}
+  .b-name{font-family:'Sora';font-weight:700;font-size:13px;margin-top:4px}
+  .b-desc{font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.3}
+
+  /* ===== MODO ENTRENO — player full-screen ===== */
+  #player{
+    position:fixed;inset:0;z-index:200;display:none;flex-direction:column;
+    background:
+      radial-gradient(900px 600px at 80% -10%, rgba(46,155,255,.22), transparent 60%),
+      radial-gradient(700px 500px at -10% 10%, rgba(46,155,255,.12), transparent 55%),
+      var(--bg);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+    animation:pl-in .28s ease both;
+  }
+  #player.show{display:flex}
+  @keyframes pl-in{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
+  .pl-wrap{max-width:540px;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column;padding:14px 18px;min-height:0}
+  .pl-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .pl-icon{
+    width:42px;height:42px;border-radius:13px;border:1px solid var(--stroke);background:var(--glass-2);
+    color:var(--txt);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none
+  }
+  .pl-prog{font-family:'Manrope';font-weight:600;font-size:13px;color:var(--muted);text-align:center;letter-spacing:.2px}
+  .pl-bar{height:4px;border-radius:999px;background:var(--stroke);margin-top:10px;overflow:hidden}
+  .pl-bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s ease;border-radius:999px}
+  .pl-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;min-height:0;
+    transition:opacity .22s ease, transform .22s ease}
+  .pl-mid.swapping{opacity:0;transform:translateY(8px)}
+  .pl-phase{
+    font-family:'Sora';font-weight:700;font-size:12px;letter-spacing:1.4px;text-transform:uppercase;
+    padding:6px 14px;border-radius:999px;border:1px solid var(--stroke);background:var(--glass-2);color:var(--accent)
+  }
+  .pl-phase.work{color:var(--accent)} .pl-phase.rest{color:var(--warn)} .pl-phase.done{color:var(--ok)}
+  .pl-phase.pen{color:var(--warn);border-color:var(--warn)}
+  .pl-ring{position:relative;width:260px;height:260px;max-width:72vw;max-height:72vw}
+  .pl-ring svg{transform:rotate(-90deg);width:100%;height:100%}
+  .pl-ring .trk{fill:none;stroke:var(--stroke);stroke-width:14}
+  .pl-ring .prg{fill:none;stroke:var(--accent);stroke-width:14;stroke-linecap:round;
+    stroke-dasharray:723;stroke-dashoffset:0;transition:stroke-dashoffset .9s linear, stroke .3s ease}
+  .pl-ring.rest .prg{stroke:var(--accent)} .pl-ring.warn .prg{stroke:var(--warn)}
+  .pl-ring.done .prg{stroke:var(--ok)}
+  .pl-ring .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .pl-num{font-family:'Sora';font-weight:800;font-size:74px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+  .pl-numsub{font-family:'Manrope';font-weight:600;font-size:13px;color:var(--muted);margin-top:6px;letter-spacing:.5px}
+  .pl-ring.pulse .prg{animation:pl-pulse 1.6s ease-in-out infinite}
+  @keyframes pl-pulse{0%,100%{opacity:.85}50%{opacity:.35}}
+  .pl-exname{font-family:'Sora';font-weight:700;font-size:24px;letter-spacing:-.4px;line-height:1.15;max-width:90%}
+  .pl-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+  .pl-set{font-family:'Manrope';font-weight:700;font-size:14px;color:var(--txt);background:var(--glass-2);
+    border:1px solid var(--stroke);border-radius:999px;padding:5px 12px;font-variant-numeric:tabular-nums}
+  .pl-type{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;padding:5px 11px;border-radius:999px;border:1px solid var(--stroke)}
+  .pl-type.working{color:var(--accent);background:var(--accent-soft)}
+  .pl-type.approach{color:#bfe0ff;background:rgba(46,155,255,.10)}
+  .pl-type.warmup{color:var(--muted);background:var(--glass-2)}
+  .pl-target{font-family:'Manrope';font-weight:600;font-size:15px;color:#cfe1f7;font-variant-numeric:tabular-nums;
+    background:var(--accent-soft);border:1px solid var(--stroke);border-radius:13px;padding:9px 14px;max-width:92%;line-height:1.4}
+  .pl-stepper{display:flex;align-items:center;gap:18px}
+  .pl-step{width:58px;height:58px;border-radius:50%;border:1px solid var(--stroke);background:var(--glass-2);
+    color:var(--txt);font-size:30px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
+  .pl-repval{font-family:'Sora';font-weight:800;font-size:80px;min-width:120px;font-variant-numeric:tabular-nums;line-height:1}
+  .pl-bot{display:flex;flex-direction:column;gap:12px;padding-bottom:6px}
+  .pl-next{font-family:'Manrope';font-weight:600;font-size:13px;color:var(--muted);text-align:center;min-height:18px}
+  .pl-next b{color:#cfe1f7}
+  .pl-go{
+    width:100%;height:64px;border:0;border-radius:18px;font-family:'Sora';font-weight:800;font-size:18px;letter-spacing:.3px;
+    background:var(--accent);color:#031323;cursor:pointer;transition:background .2s,transform .08s;
+    box-shadow:0 12px 30px rgba(46,155,255,.28)
+  }
+  .pl-go:active{transform:scale(.985)}
+  .pl-go.ok{background:var(--ok);color:#04130c;box-shadow:0 12px 30px rgba(52,211,153,.25)}
+  .pl-go.warn{background:var(--warn);color:#211302;box-shadow:0 12px 30px rgba(245,177,76,.25)}
+  .pl-go.ghost{background:var(--glass-2);color:var(--txt);border:1px solid var(--stroke);box-shadow:none}
+  .pl-subrow{display:flex;gap:10px}
+  .pl-subrow .pl-go{height:48px;font-size:14px;box-shadow:none}
+  /* resumen final */
+  .pl-summary{display:none;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:10px 0}
+  .pl-summary.show{display:flex}
+  .pl-sum-big{font-family:'Sora';font-weight:800;font-size:30px}
+  .pl-sum-line{font-size:14px;color:var(--muted)}
 </style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
-<div class="wrap">
+<div class="wrap" id="overview">
   <div class="row" style="justify-content:space-between;align-items:flex-end">
     <div>
       <h1>Forja</h1>
       <div class="sub" id="dateline">—</div>
     </div>
-    <div class="pill" id="bwpill">— kg</div>
+    <div>
+      <span class="pill" id="bwpill">— kg</span>
+      <span class="pill streak" id="streakchip">🔥 0</span>
+    </div>
+  </div>
+
+  <!-- INSTALAR APP (PWA) -->
+  <div class="card" id="installCard">
+    <div class="row">
+      <img class="inst-ico" src="./icon-192.png" alt="Forja" />
+      <div class="inst-txt">
+        <div class="t">Instala Forja en tu movil</div>
+        <div class="d" id="installHint">Acceso directo a pantalla completa y funciona sin conexion.</div>
+      </div>
+      <button class="btn" id="installBtn">Instalar app</button>
+    </div>
   </div>
 
   <!-- CHECK-IN -->
@@ -137,6 +313,11 @@
       <button data-v="ninguna">Ninguna</button><button data-v="dedo">Dedo</button>
       <button data-v="tobillo">Tobillo</button><button data-v="hombro">Hombro</button>
     </div>
+    <div class="lbl" style="margin-top:12px">Recuperación activa hoy</div>
+    <div class="seg" id="ci_recovery">
+      <button data-v="">No</button><button data-v="nado">Nado</button>
+      <button data-v="spa">Spa</button><button data-v="paseo">Paseo</button>
+    </div>
     <button class="btn" id="ci_save">Guardar check-in</button>
     <div class="suggest" id="ci_out" style="display:none"></div>
   </div>
@@ -150,16 +331,33 @@
     </div>
   </div>
 
-  <!-- SESION -->
+  <!-- SESION (overview) -->
   <div class="card" id="session">
     <h2 id="session_title"><span class="spin"></span> Cargando sesión…</h2>
     <div id="sets"></div>
   </div>
 
-  <div class="sub" style="text-align:center;margin-top:18px">Forja · v0.1 · datos en tu Supabase</div>
+  <!-- GAMIFICACION -->
+  <div class="card" id="gam"></div>
+
+  <div class="sub" style="text-align:center;margin-top:18px">Forja · v2 · datos en tu Supabase</div>
 </div>
 
-<!-- DESCANSO -->
+<!-- HOJA iOS / "Anadir a pantalla de inicio" -->
+<div id="iosSheet" onclick="if(event.target===this)closeIosSheet()">
+  <div class="sheet">
+    <h3>Anadir a pantalla de inicio</h3>
+    <p id="iosSheetIntro">Instala Forja como app para abrirla a pantalla completa y usarla sin conexion.</p>
+    <ol id="iosSteps">
+      <li>Pulsa <span class="ic">&#x2191;</span> <b>Compartir</b> en la barra de Safari.</li>
+      <li>Desliza y elige <span class="ic">&#x2b;</span> <b>Anadir a pantalla de inicio</b>.</li>
+      <li>Confirma con <b>Anadir</b>. Forja aparecera como una app mas.</li>
+    </ol>
+    <button class="btn" onclick="closeIosSheet()">Entendido</button>
+  </div>
+</div>
+
+<!-- DESCANSO LIBRE (overview) -->
 <div id="timerbar">
   <span id="tdisp">Descanso</span>
   <div class="seg">
@@ -170,8 +368,65 @@
   </div>
 </div>
 
+<!-- ======================== MODO ENTRENO ======================== -->
+<div id="player" aria-hidden="true">
+  <div class="pl-wrap">
+    <div>
+      <div class="pl-top">
+        <div class="pl-icon" id="pl_exit">✕</div>
+        <div class="pl-prog" id="pl_prog">—</div>
+        <div class="pl-icon" id="pl_pause">⏸</div>
+      </div>
+      <div class="pl-bar"><i id="pl_barfill"></i></div>
+    </div>
+
+    <div class="pl-mid" id="pl_mid">
+      <div class="pl-phase" id="pl_phase">Prepárate</div>
+      <div class="pl-ring" id="pl_ring">
+        <svg viewBox="0 0 260 260">
+          <circle class="trk" cx="130" cy="130" r="115"></circle>
+          <circle class="prg" id="pl_prg" cx="130" cy="130" r="115"></circle>
+        </svg>
+        <div class="ctr">
+          <div class="pl-num" id="pl_num">10</div>
+          <div class="pl-numsub" id="pl_numsub">segundos</div>
+        </div>
+      </div>
+      <div class="pl-exname" id="pl_exname">Ejercicio</div>
+      <div class="pl-meta">
+        <span class="pl-set" id="pl_setlbl">Serie 1/4</span>
+        <span class="pl-type working" id="pl_type">Efectiva</span>
+      </div>
+      <div class="pl-target" id="pl_target">OBJETIVO · — kg × — reps</div>
+    </div>
+
+    <!-- resumen final -->
+    <div class="pl-summary" id="pl_summary">
+      <div class="pl-phase done">Sesión terminada</div>
+      <div class="pl-sum-big" id="pl_sum_big">🔥</div>
+      <div class="pl-sum-line" id="pl_sum_line"></div>
+    </div>
+
+    <div class="pl-bot">
+      <div class="pl-next" id="pl_next"></div>
+      <div class="pl-subrow" id="pl_subrow" style="display:none">
+        <button class="pl-go ghost" id="pl_back">← Atrás</button>
+        <button class="pl-go ghost" id="pl_skip">Saltar →</button>
+      </div>
+      <button class="pl-go" id="pl_go">Empezar ya</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+"use strict";
+/* ====================================================================
+   FORJA v2 — entrenador guiado manos libres + gamificacion + PWA.
+   Schema canonico (trainer.workout_sets): set_type, mode, work_seconds,
+   target_rest_seconds, actual_rest_seconds, rest_over_limit, set_order.
+   Toda la app degrada con elegancia si la migracion aun no esta aplicada.
+   ==================================================================== */
 const SUPA_URL='https://gqoorsfyufktfnyqzudj.supabase.co';
 const SUPA_KEY='sb_publishable_Y4dyhwpjNYPZV8VjJzompQ_JUKuevgW';
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY,{db:{schema:'trainer'}});
@@ -180,21 +435,76 @@ const todayISO=(()=>{const d=new Date();return `${d.getFullYear()}-${String(d.ge
 const DOW=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 document.getElementById('dateline').textContent=`${DOW[new Date().getDay()]} · ${todayISO}`;
 
-function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1400);}
+/* defaults de motor/perfil (se sobreescriben con profile si existe) */
+const CFG={ prep_seconds:10, default_rest_seconds:120, rest_penalty_seconds:300,
+            default_work_seconds:15, default_set_mode:'reps',
+            benchTargetKg:100, weightBandKg:1.5, streakGraceDays:1,
+            prefs:{sound_on:true, vibrate_on:true, wakelock_on:true, penalty_type:'pushups'} };
 
-// ---- segmented helpers
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600);}
+function vibe(p){ if(CFG.prefs.vibrate_on && navigator.vibrate){ try{navigator.vibrate(p);}catch(_){} } }
+
+/* ---------- helpers de fecha ---------- */
+const dayKey = d => (d instanceof Date ? d : new Date(String(d).slice(0,10)+'T00:00:00')).toISOString().slice(0,10);
+const daysBetween = (a,b) => Math.round((new Date(String(a).slice(0,10)+'T00:00:00') - new Date(String(b).slice(0,10)+'T00:00:00'))/86400000);
+
+/* ---------- deteccion segura de columnas nuevas ----------
+   La primera lectura de workout_sets nos dice si la migracion v2 esta puesta. */
+let SCHEMA={ set_type:false, mode:false, work_seconds:false, target_rest_seconds:false,
+             actual_rest_seconds:false, rest_over_limit:false, set_order:false };
+function detectSchema(sampleRow){
+  if(!sampleRow) return;
+  for(const k of Object.keys(SCHEMA)){ if(k in sampleRow) SCHEMA[k]=true; }
+}
+/* filtra un patch a solo las columnas que existen (degradacion elegante) */
+function safePatch(patch){
+  const known={set_type:1,mode:1,work_seconds:1,target_rest_seconds:1,actual_rest_seconds:1,rest_over_limit:1,set_order:1};
+  const out={};
+  for(const k in patch){
+    if(known[k] && !SCHEMA[k]) continue; // columna nueva no existe -> omitir
+    out[k]=patch[k];
+  }
+  return out;
+}
+/* lee set_type con fallback a is_warmup */
+const stOf = s => (SCHEMA.set_type && s.set_type) ? s.set_type : (s.is_warmup ? 'warmup' : 'working');
+const modeOf = s => (SCHEMA.mode && s.mode) ? s.mode : 'reps';
+const isWorking = s => stOf(s)==='working';
+
+/* ====================================================================
+   CHECK-IN (v0.1 + recuperacion activa)
+   ==================================================================== */
 function seg(id,cb){document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('#'+id+' button').forEach(x=>x.classList.remove('sel'));
   b.classList.add('sel');cb&&cb(b.dataset.v);});}
-let ci={sleep:null,time:null,energy:null,sore:'ninguna'};
-seg('ci_time',v=>ci.time=+v); seg('ci_energy',v=>ci.energy=+v); seg('ci_sore',v=>ci.sore=v);
+let ci={sleep:null,time:null,energy:null,sore:'ninguna',recovery:''};
+seg('ci_time',v=>ci.time=+v); seg('ci_energy',v=>ci.energy=+v);
+seg('ci_sore',v=>ci.sore=v); seg('ci_recovery',v=>ci.recovery=v);
 document.getElementById('ci_sleep').oninput=e=>ci.sleep=parseFloat(e.target.value)||null;
 
+/* Arranca en null = "desconocido". Una sonda previa (probeCheckinSchema) lo fija
+   a true/false ANTES de cualquier lectura, para no disparar un 400 que tumbe
+   toda la query de checkins y pierda la racha por recuperacion activa. */
+let CHECKIN_HAS_RECOVERY=null;
+async function probeCheckinSchema(){
+  if(CHECKIN_HAS_RECOVERY!==null) return;
+  // sonda barata: pedimos solo active_recovery con limit(1). Si la columna no
+  // existe, PostgREST devuelve error y marcamos la feature como ausente.
+  const probe=await sb.from('checkins').select('active_recovery').limit(1);
+  CHECKIN_HAS_RECOVERY = !probe.error;
+}
 document.getElementById('ci_save').onclick=async()=>{
-  await sb.from('checkins').insert({date:todayISO,sleep_hours:ci.sleep,energy:ci.energy,soreness:ci.sore,time_available:ci.time});
+  await probeCheckinSchema(); // saber si active_recovery existe antes de insertar
+  const base={date:todayISO,sleep_hours:ci.sleep,energy:ci.energy,soreness:ci.sore,time_available:ci.time};
+  const payload=CHECKIN_HAS_RECOVERY && ci.recovery ? {...base, active_recovery:ci.recovery} : base;
+  let {error}=await sb.from('checkins').insert(payload);
+  if(error && ci.recovery){ // columna active_recovery aun no existe -> reintento sin ella
+    CHECKIN_HAS_RECOVERY=false;
+    await sb.from('checkins').insert(base);
+  }
   const out=document.getElementById('ci_out');out.style.display='block';
   let msg;
-  if(ci.energy&&ci.energy<=2 || (ci.sleep&&ci.sleep<5)){
+  if((ci.energy&&ci.energy<=2) || (ci.sleep&&ci.sleep<5)){
     msg='🟥 Hoy vas justo. Si te puede el cuerpo, haz la sesión a volumen recortado (quita 1 serie por ejercicio). Si no, vete al agua: 5 largos + spa y mañana a tope.';
   }else if(ci.energy===3){
     msg='🟧 Día medio. Haz la sesión completa pero sin buscar PR — deja 2-3 reps en recámara en todo.';
@@ -202,69 +512,1137 @@ document.getElementById('ci_save').onclick=async()=>{
     msg='🟩 Verde. A por la sesión completa y pelea por batir los pesos de la última vez.';
   }else{msg='Marca tu energía para que te ajuste el día.';}
   if(ci.sore&&ci.sore!=='ninguna') msg+=` ⚠️ Molestia en ${ci.sore}: evita cargar esa zona, te cambio el ejercicio si hace falta.`;
+  if(ci.recovery) msg+=` 🏊 Recuperación activa (${ci.recovery}) cuenta para tu racha.`;
   out.textContent=msg;toast('Check-in guardado');
+  renderGamification();
 };
 
+/* ====================================================================
+   PESO
+   ==================================================================== */
 document.getElementById('bw_save').onclick=async()=>{
   const v=parseFloat(document.getElementById('bw').value);
   if(!v){toast('Pon un peso');return;}
   await sb.from('bodyweight_logs').insert({date:todayISO,weight_kg:v,source:'manual'});
   document.getElementById('bwpill').textContent=v+' kg';toast('Peso anotado');
+  renderGamification();
 };
-
-// ---- cargar ultimo peso
 (async()=>{const {data}=await sb.from('bodyweight_logs').select('weight_kg').order('date',{ascending:false}).limit(1);
   if(data&&data[0])document.getElementById('bwpill').textContent=data[0].weight_kg+' kg';})();
 
-// ---- sesion de hoy
+/* ====================================================================
+   PERFIL / PREFERENCIAS (degrada si las columnas no existen)
+   ==================================================================== */
+async function loadProfilePrefs(){
+  // pedimos columnas v2; si no existen, supabase-js devuelve error -> reintento minimo
+  let res=await sb.from('profile')
+    .select('prep_seconds,default_rest_seconds,rest_penalty_seconds,default_work_seconds,default_set_mode,prefs')
+    .eq('id',1).maybeSingle();
+  if(res.error){ return; } // perfil v0.1: usamos defaults CFG
+  const p=res.data; if(!p) return;
+  if(p.prep_seconds!=null) CFG.prep_seconds=p.prep_seconds;
+  if(p.default_rest_seconds!=null) CFG.default_rest_seconds=p.default_rest_seconds;
+  if(p.rest_penalty_seconds!=null) CFG.rest_penalty_seconds=p.rest_penalty_seconds;
+  if(p.default_work_seconds!=null) CFG.default_work_seconds=p.default_work_seconds;
+  if(p.default_set_mode) CFG.default_set_mode=p.default_set_mode;
+  if(p.prefs && typeof p.prefs==='object') CFG.prefs=Object.assign(CFG.prefs,p.prefs);
+}
+
+/* ====================================================================
+   SESION DE HOY — carga + overview + autosave (reutiliza saveSet v0.1)
+   ==================================================================== */
 let saveT;
 function saveSet(id,patch){clearTimeout(saveT);saveT=setTimeout(async()=>{
-  await sb.from('workout_sets').update(patch).eq('id',id);toast('Guardado ✓');},350);}
+  const sp=safePatch(patch);
+  await sb.from('workout_sets').update(sp).eq('id',id);toast('Guardado ✓');},350);}
+/* version inmediata (sin debounce) para el motor guiado */
+async function saveSetNow(id,patch){
+  const sp=safePatch(patch);
+  if(Object.keys(sp).length===0) return;
+  await sb.from('workout_sets').update(sp).eq('id',id);
+}
+
+let CUR_WORKOUT=null;   // workout de hoy
+let CUR_SETS=[];        // sets de hoy con join exercises
 
 async function loadSession(){
   const {data:w}=await sb.from('workouts').select('*').eq('date',todayISO).order('id',{ascending:false}).limit(1);
   const title=document.getElementById('session_title');const cont=document.getElementById('sets');
-  if(!w||!w.length){title.textContent='Sin sesión para hoy';cont.innerHTML='<div class="empty">No hay entreno programado para hoy.<br>Pídeselo al coach.</div>';return;}
-  const wk=w[0];title.textContent=wk.day_label||'Sesión de hoy';
+  if(!w||!w.length){
+    CUR_WORKOUT=null;CUR_SETS=[];
+    title.textContent='Sin sesión para hoy';
+    cont.innerHTML='<div class="empty">No hay entreno programado para hoy.<br>Pídeselo al coach.</div>';
+    return;
+  }
+  const wk=w[0];CUR_WORKOUT=wk;title.textContent=wk.day_label||'Sesión de hoy';
   const {data:sets}=await sb.from('workout_sets')
-    .select('*, exercises(name,muscle_group,equipment)').eq('workout_id',wk.id).order('id',{ascending:true});
+    .select('*, exercises(name,muscle_group,equipment,demo_video_url)')
+    .eq('workout_id',wk.id).order('id',{ascending:true});
+  CUR_SETS=sets||[];
+  detectSchema(CUR_SETS[0]);
+  renderOverview();
+}
+
+/* "Hoy" = overview: resumen + boton Empezar + lista colapsada por ejercicio */
+function renderOverview(){
+  const cont=document.getElementById('sets');
   cont.innerHTML='';
-  let curEx=null,box=null;
-  sets.forEach(s=>{
-    if(s.exercise_id!==curEx){
-      curEx=s.exercise_id;
-      box=document.createElement('div');box.className='ex';
-      box.innerHTML=`<div class="ex-head"><span class="ex-name">${s.exercises?.name||'Ejercicio'}</span>
-        <span class="ex-tag">${s.exercises?.muscle_group||''} · ${s.exercises?.equipment||''}</span></div>`;
-      cont.appendChild(box);
+  if(!CUR_SETS.length){ cont.innerHTML='<div class="empty">Sesión vacía.</div>'; return; }
+
+  const total=CUR_SETS.length;
+  const doneN=CUR_SETS.filter(s=>s.done).length;
+  const working=CUR_SETS.filter(isWorking).length;
+
+  const sum=document.createElement('div');sum.className='sess-sum';
+  sum.innerHTML=`<span class="sess-chip"><b>${doneN}</b>/${total} series</span>
+    <span class="sess-chip"><b>${working}</b> efectivas</span>
+    <span class="sess-chip">${groupCount()} ejercicios</span>`;
+  cont.appendChild(sum);
+
+  // boton empezar entreno guiado
+  const startBtn=document.createElement('button');
+  startBtn.className='btn';startBtn.style.marginTop='12px';
+  startBtn.textContent = doneN>0 && doneN<total ? '▶ Continuar entreno' : '▶ Empezar entreno';
+  startBtn.onclick=()=>startGuided();
+  cont.appendChild(startBtn);
+
+  // lista colapsada por ejercicio (revision rapida + generar rampa)
+  const list=document.createElement('div');list.style.marginTop='6px';
+  let curEx=null,exSets=[];
+  const flush=()=>{
+    if(curEx==null) return;
+    const ex=exSets[0].exercises||{};
+    const d=exSets.filter(x=>x.done).length;
+    const row=document.createElement('div');row.className='sess-ex';
+    row.innerHTML=`<div><div class="nm">${ex.name||'Ejercicio'}</div>
+        <div class="mt">${ex.muscle_group||''}${ex.equipment?' · '+ex.equipment:''}</div></div>
+      <div class="cnt ${d===exSets.length?'done':''}">${d}/${exSets.length}</div>`;
+    list.appendChild(row);
+  };
+  CUR_SETS.forEach(s=>{ if(s.exercise_id!==curEx){ flush(); curEx=s.exercise_id; exSets=[]; } exSets.push(s); });
+  flush();
+  cont.appendChild(list);
+
+  // si la sesion no tiene aproximaciones y hay compuestos, ofrecer generar rampa
+  maybeOfferRamps(cont);
+}
+function groupCount(){ return new Set(CUR_SETS.map(s=>s.exercise_id)).size; }
+
+/* ---------- expand/collapse rampa por ejercicio (generador editable) ---------- */
+function maybeOfferRamps(cont){
+  // agrupa por ejercicio y detecta los que NO tienen warmup/approach
+  const byEx={};
+  CUR_SETS.forEach(s=>{ (byEx[s.exercise_id] ||= []).push(s); });
+  const candidates=[];
+  for(const exId in byEx){
+    const list=byEx[exId];
+    const hasRamp=list.some(s=>stOf(s)!=='working');
+    const ex=list[0].exercises||{};
+    const workWeight=list.find(s=>isWorking(s)&&s.weight_kg)?.weight_kg;
+    if(!hasRamp && workWeight) candidates.push({exId:+exId, ex, list, workWeight});
+  }
+  if(!candidates.length) return;
+  const wrap=document.createElement('div');wrap.style.marginTop='12px';
+  const hint=document.createElement('div');hint.className='lbl';hint.textContent='Generar rampa de aproximación';
+  wrap.appendChild(hint);
+  candidates.forEach(c=>{
+    const b=document.createElement('button');b.className='btn ghost';b.style.marginTop='8px';
+    b.textContent=`Rampa: ${c.ex.name} (trabajo ${c.workWeight} kg)`;
+    b.onclick=()=>openRampEditor(c, wrap, b);
+    wrap.appendChild(b);
+  });
+  cont.appendChild(wrap);
+}
+
+function openRampEditor(c, wrap, btn){
+  if(btn.dataset.open==='1'){ return; }
+  btn.dataset.open='1'; btn.disabled=true; btn.style.opacity='.5';
+  const ramp=generateRamp(c.workWeight, c.ex.equipment);
+  if(!ramp.length){ toast('Sin rampa útil para ese material/peso'); return; }
+  const box=document.createElement('div');box.className='ramp';
+  const draw=()=>{
+    box.innerHTML='<div class="rh">Rampa editable · '+(c.ex.name||'')+'</div>';
+    ramp.forEach((s,idx)=>{
+      const r=document.createElement('div');r.className='rrow';
+      r.innerHTML=`<div class="tag ${s.set_type}">${s.set_type==='warmup'?'W':'A'}</div>
+        <div><input class="si" inputmode="decimal" value="${s.weight_kg}"><div class="unit">kg</div></div>
+        <div><input class="si" inputmode="numeric" value="${s.reps}"><div class="unit">reps</div></div>
+        <div class="rm">✕</div>`;
+      const [wI,rI]=r.querySelectorAll('input');
+      wI.oninput=()=>s.weight_kg=parseFloat(wI.value)||0;
+      rI.oninput=()=>s.reps=parseInt(rI.value)||0;
+      r.querySelector('.rm').onclick=()=>{ramp.splice(idx,1);draw();};
+      box.appendChild(r);
+    });
+    const add=document.createElement('button');add.className='radd';add.textContent='+ Añadir escalón';
+    add.onclick=()=>{const last=ramp[ramp.length-1];const step=(RAMP_DEFAULTS[c.ex.equipment]||{}).minStep||2.5;
+      ramp.push({set_type:'approach',weight_kg:last?last.weight_kg+step:step,reps:2});draw();};
+    box.appendChild(add);
+    const apply=document.createElement('button');apply.className='btn';apply.textContent='Aplicar rampa';
+    apply.onclick=()=>applyRamp(c, ramp);
+    box.appendChild(apply);
+  };
+  draw();
+  btn.insertAdjacentElement('afterend', box);
+}
+
+async function applyRamp(c, ramp){
+  if(!ramp.length){ toast('Rampa vacía'); return; }
+  // base de orden: insertamos las aproximaciones ANTES de las working del ejercicio.
+  const rows=ramp.map((s,i)=>{
+    const row={ workout_id:CUR_WORKOUT.id, exercise_id:c.exId, set_number:i+1,
+      weight_kg:s.weight_kg, reps:s.reps, done:false };
+    if(SCHEMA.set_type) row.set_type=s.set_type;
+    if(SCHEMA.mode) row.mode='reps';
+    return row;
+  });
+  const {error}=await sb.from('workout_sets').insert(rows);
+  if(error){ toast('Error al aplicar rampa'); return; }
+  toast('Rampa aplicada ✓');
+  await renumberOrder();
+  await loadSession();
+}
+
+/* renumera set_order entero secuencial dentro del workout (orden = id asc),
+   warmup/approach delante de working del mismo ejercicio. */
+async function renumberOrder(){
+  if(!SCHEMA.set_order || !CUR_WORKOUT) return;
+  const {data}=await sb.from('workout_sets').select('id,exercise_id,set_type,is_warmup')
+    .eq('workout_id',CUR_WORKOUT.id).order('id',{ascending:true});
+  if(!data) return;
+  // agrupa por ejercicio preservando el orden de aparicion; dentro de cada grupo: ramp antes que working
+  const groups=[]; const seen={};
+  data.forEach(s=>{ if(seen[s.exercise_id]==null){ seen[s.exercise_id]=groups.length; groups.push([]); } groups[seen[s.exercise_id]].push(s); });
+  let order=1; const updates=[];
+  groups.forEach(g=>{
+    const ramp=g.filter(s=>stOf(s)!=='working');
+    const work=g.filter(s=>stOf(s)==='working');
+    [...ramp,...work].forEach(s=>updates.push({id:s.id,set_order:order++}));
+  });
+  for(const u of updates){ await sb.from('workout_sets').update({set_order:u.set_order}).eq('id',u.id); }
+}
+
+/* ====================================================================
+   GENERADOR DE RAMPA DE APROXIMACION (editable)
+   ==================================================================== */
+const RAMP_DEFAULTS = {
+  'barra':         { minStep:2.5, startKg:20,   startPct:null, topPct:0.85, gen:true  },
+  'mancuerna':     { minStep:2.5, startKg:null, startPct:0.30, topPct:0.85, gen:true  },
+  'maquina':       { minStep:5.0, startKg:null, startPct:0.40, topPct:0.85, gen:true  },
+  'polea':         { minStep:5.0, startKg:null, startPct:0.40, topPct:0.85, gen:true  },
+  'peso corporal': { minStep:1.0, startKg:null, startPct:null, topPct:0.85, gen:false },
+};
+function roundToStep(kg, step){ const r=Math.round(kg/step)*step; return Math.max(step, Math.round(r*100)/100); }
+function rampSteps(equipment, W, start){
+  if(equipment==='barra') return W<=40?2:(W<=70?3:4);
+  if(equipment==='mancuerna'){ const d=(W*0.85)-start; return d<=6?1:(d<=16?2:3); }
+  const d=(W*0.85)-start; return d<=10?1:2;
+}
+function rampReps(i,n){ if(i===1&&n>=2) return 6; if(i===n) return 2; return 3; }
+function generateRamp(W, equipment){
+  const cfg=RAMP_DEFAULTS[equipment]||RAMP_DEFAULTS['maquina'];
+  if(!cfg.gen || !W || W<=0) return [];
+  const step=cfg.minStep, top=W*cfg.topPct;
+  let start = cfg.startKg!=null ? cfg.startKg : roundToStep(W*(cfg.startPct??0.4), step);
+  if(start>=top) return [];
+  const n=rampSteps(equipment, W, start);
+  const out=[]; let lastW=-1;
+  for(let i=1;i<=n;i++){
+    const raw=start+(top-start)*(i/(n+1));
+    const wKg=roundToStep(raw, step);
+    if(wKg<=lastW) continue;
+    if(wKg>=top+step) break;
+    lastW=wKg;
+    const type=(i===1 && wKg<=W*0.5)?'warmup':'approach';
+    out.push({ set_type:type, weight_kg:wKg, reps:rampReps(i,n) });
+  }
+  return out;
+}
+
+/* ====================================================================
+   MOTOR DE SESION GUIADA — ForjaEngine (maquina de estados)
+   ==================================================================== */
+const ST = Object.freeze({
+  IDLE:'idle', PREP:'prep', WORK_REPS:'work_reps', WORK_TIME:'work_time',
+  LOGGING:'logging', REST:'rest', PENALTY:'penalty', PAUSED:'paused', FINISHED:'finished'
+});
+
+class Cue {
+  constructor(){ this.ac=null; this.muted=false; }
+  _ctx(){ if(!this.ac){ try{ this.ac=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+          if(this.ac && this.ac.state==='suspended'){ this.ac.resume().catch(()=>{}); } return this.ac; }
+  unlock(){ this._ctx(); }
+  _tone(freq,dur,when=0,type='sine',vol=.25){
+    const ac=this._ctx(); if(!ac||this.muted) return;
+    const t=ac.currentTime+when, o=ac.createOscillator(), g=ac.createGain();
+    o.type=type; o.frequency.value=freq; o.connect(g); g.connect(ac.destination);
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+dur);
+    o.start(t); o.stop(t+dur);
+  }
+  play(kind){
+    switch(kind){
+      case 'tick':    this._tone(660,.05,0,'sine',.12); break;
+      case 'go':      this._tone(523,.12); this._tone(784,.18,.12); vibe([0,120,60,120]); break;
+      case 'last3':   this._tone(880,.07); vibe(40); break;
+      case 'setdone': this._tone(988,.10); this._tone(1318,.16,.10); vibe([0,90]); break;
+      case 'restend': this._tone(740,.10); this._tone(740,.10,.16); vibe([0,140,80,140]); break;
+      case 'penalty': this._tone(220,.30,0,'sawtooth',.22); vibe([0,200,100,200,100,200]); break;
+      case 'finish':  this._tone(523,.16); this._tone(659,.16,.14); this._tone(784,.30,.28); vibe([0,80,60,80,60,200]); break;
     }
-    const r=document.createElement('div');r.className='set'+(s.is_warmup?' warm':'');
-    r.innerHTML=`
-      <div class="snum">${s.is_warmup?'W':s.set_number}</div>
-      <div><input class="si" inputmode="decimal" value="${s.weight_kg??''}" placeholder="–"><div class="unit">kg</div></div>
-      <div><input class="si" inputmode="numeric" value="${s.reps??''}" placeholder="–"><div class="unit">reps</div></div>
-      <div><input class="si" inputmode="numeric" value="${s.rir??''}" placeholder="–"><div class="unit">RIR</div></div>
-      <div class="chk${s.done?' on':''}">${s.done?'✓':''}</div>`;
-    const[wI,rI,rirI]=r.querySelectorAll('input');const chk=r.querySelector('.chk');
-    wI.oninput=()=>saveSet(s.id,{weight_kg:parseFloat(wI.value)||null});
-    rI.oninput=()=>saveSet(s.id,{reps:parseInt(rI.value)||null});
-    rirI.oninput=()=>saveSet(s.id,{rir:parseInt(rirI.value)||null});
-    chk.onclick=()=>{const on=!chk.classList.contains('on');chk.classList.toggle('on',on);chk.textContent=on?'✓':'';
-      saveSet(s.id,{done:on});if(on&&navigator.vibrate)navigator.vibrate(15);};
-    if(s.notes){const n=document.createElement('div');n.className='note';n.textContent=s.notes;box.appendChild(r);box.appendChild(n);}
-    else box.appendChild(r);
+  }
+}
+
+const PENALTY_POOL = [
+  {t:'Una serie más', sub:'Añade una serie extra al final del ejercicio.'},
+  {t:'10 flexiones',  sub:'Aquí y ahora. Cierras el descanso y bajas.'},
+  {t:'20s de plancha',sub:'Mientras llega la siguiente serie.'},
+  {t:'15 sentadillas al aire', sub:'Sin impacto, ritmo controlado.'},
+];
+
+class ForjaEngine {
+  constructor(plan, cfg={}){
+    this.plan = plan.map((s,i)=>({ ...s, _idx:i }));
+    this.cfg = Object.assign({ prepSec:10, longRestSec:300, defaultRestSec:120,
+      autoConfirmReps:false, tickMs:250 }, cfg);
+    this.cue = new Cue();
+    this.state = ST.IDLE; this.prevState=null;
+    this.i = 0; this.secLeft=0; this.phaseTotal=0; this.lastTick=0;
+    this.restStartedAt=0; this.penaltyArmed=false; this.restTargetReached=false;
+    this._last3Fired=false; this._prepTickFired={};
+    this.wakeLock=null; this._wakePending=false; this._timer=null;
+    this.onState=()=>{}; this.onTick=()=>{}; this.onCue=()=>{};
+    this.onSetClosed=()=>{}; this.onRestClosed=()=>{}; this.onPenalty=()=>{}; this.onFinished=()=>{};
+    this._onVis=()=>{ if(document.visibilityState==='visible') this._reacquireWake(); };
+  }
+  start(){
+    if(this.state!==ST.IDLE) return;
+    this.cue.unlock();
+    document.addEventListener('visibilitychange', this._onVis);
+    this._acquireWake();
+    this.lastTick=performance.now();
+    this._timer=setInterval(()=>this._tick(), this.cfg.tickMs);
+    this.i=0; this._enterPrep();
+  }
+  setMute(m){ this.cue.muted=!!m; }
+  setDone(){ if(this.state===ST.WORK_REPS) this._closeWork(); }
+  finishWorkTime(){ if(this.state===ST.WORK_TIME) this._closeWork(); }
+  confirmLog(payload){
+    if(this.state!==ST.LOGGING) return;
+    const s=this._cur();
+    if(payload){ if(payload.weight!=null)s.weight=payload.weight;
+      if(payload.reps!=null)s.repsDone=payload.reps; if(payload.rir!=null)s.rir=payload.rir; }
+    this._emitClosed(s); this._enterRest();
+  }
+  pause(){ if([ST.IDLE,ST.FINISHED,ST.PAUSED].includes(this.state)) return;
+    this.prevState=this.state; this.state=ST.PAUSED; this._emitState(); }
+  resume(){ if(this.state!==ST.PAUSED) return;
+    this.lastTick=performance.now(); this.state=this.prevState; this.prevState=null; this._emitState(); }
+  skip(){ if([ST.IDLE,ST.FINISHED].includes(this.state)) return; this._advance(); }
+  skipRest(){ if(this.state===ST.REST) this._advance(); }
+  back(){ if(this.i>0){ this.i--; this.penaltyArmed=false; this.restStartedAt=0; this.restTargetReached=false; this._enterPrep(); } }
+  resolvePenalty(){ if(this.state===ST.PENALTY){ this._cur()._penaltyDone=true; this._advance(); } }
+  skipPenalty(){ if(this.state===ST.PENALTY){ this._cur()._penaltyDone=false; this._advance(); } }
+  stop(){
+    clearInterval(this._timer); this._timer=null;
+    document.removeEventListener('visibilitychange', this._onVis);
+    this._releaseWake(); this.state=ST.IDLE; this._emitState();
+  }
+  _cur(){ return this.plan[this.i]; }
+  _enterPrep(){
+    const s=this._cur(); this.secLeft=s.prepSec ?? this.cfg.prepSec; this.phaseTotal=this.secLeft;
+    this._prepTickFired={}; this.state=ST.PREP; this._emitState();
+  }
+  _enterWork(){
+    const s=this._cur(); this._last3Fired=false;
+    if(s.mode==='time'){ this.secLeft=s.workSec ?? 15; this.phaseTotal=this.secLeft; this.state=ST.WORK_TIME; }
+    else { this.secLeft=s.workCapSec ?? 120; this.phaseTotal=this.secLeft; this.state=ST.WORK_REPS; }
+    this.cue.play('go'); this.onCue('go'); this._emitState();
+  }
+  _enterLogging(){
+    const s=this._cur();
+    if(s.mode==='reps' && s.repsDone==null) s.repsDone=s.targetReps ?? null;
+    this.state=ST.LOGGING; this._emitState();
+    if(s.mode==='reps' && this.cfg.autoConfirmReps){ this.confirmLog(null); }
+  }
+  _enterRest(){
+    const s=this._cur(); const rest=s.restSec ?? this.cfg.defaultRestSec;
+    this.secLeft=rest; this.phaseTotal=rest;
+    this.restStartedAt=Date.now(); this.penaltyArmed=false;
+    this.restTargetReached=false; // se marca cuando secLeft llega a 0 (objetivo cumplido)
+    this.state=ST.REST; this._emitState();
+  }
+  _enterPenalty(){
+    const s=this._cur(); s._penaltyTriggered=true;
+    const challenge=PENALTY_POOL[Math.floor(Math.random()*PENALTY_POOL.length)];
+    s._penaltyChallenge=challenge;
+    this.cue.play('penalty'); this.onCue('penalty');
+    this.state=ST.PENALTY; this._emitState();
+    this.onPenalty({ challenge, restSec:Math.round((Date.now()-this.restStartedAt)/1000) });
+  }
+  _finish(){
+    clearInterval(this._timer); this._timer=null;
+    document.removeEventListener('visibilitychange', this._onVis);
+    this._releaseWake(); this.cue.play('finish'); this.onCue('finish');
+    this.state=ST.FINISHED; this._emitState();
+    const done=this.plan.filter(p=>p._closed).length;
+    this.onFinished({ totalSteps:this.plan.length, completed:done, plan:this.plan });
+  }
+  _closeWork(){
+    const s=this._cur();
+    if(s.mode==='time'){ this.cue.play('restend'); } else { this.cue.play('setdone'); }
+    this.onCue('setdone'); this._enterLogging();
+  }
+  _emitClosed(s){
+    s._closed=true;
+    this.onSetClosed({
+      dbId:s.dbId, exId:s.exId, setNumber:s.setNumber, setType:s.setType, mode:s.mode,
+      weight:s.weight ?? null,
+      reps:s.repsDone ?? s.targetReps ?? null,
+      amrapReps:s.mode==='time' ? (s.repsDone ?? null) : null,
+      rir:s.rir ?? null,
+      restTargetSec:s.restSec ?? this.cfg.defaultRestSec,
+      done:true
+    });
+  }
+  _advance(){
+    const prev=this._cur();
+    if(prev && this.restStartedAt){
+      prev._actualRestSec=Math.round((Date.now()-this.restStartedAt)/1000);
+      this.onRestClosed({
+        dbId:prev.dbId,
+        actualRestSec:prev._actualRestSec,
+        overLimit:prev._actualRestSec > this.cfg.longRestSec,
+        penaltyTriggered:!!prev._penaltyTriggered,
+        penaltyDone:prev._penaltyTriggered ? !!prev._penaltyDone : null,
+        challenge:prev._penaltyChallenge ? prev._penaltyChallenge.t : null,
+        exId:prev.exId, setNumber:prev.setNumber
+      });
+      this.restStartedAt=0;
+    }
+    this.i++;
+    if(this.i>=this.plan.length){ this._finish(); return; }
+    this.penaltyArmed=false; this._enterPrep();
+  }
+  _tick(){
+    if(this.state===ST.PAUSED||this.state===ST.IDLE||this.state===ST.FINISHED){ this.lastTick=performance.now(); return; }
+    // Re-acquire periodico del wake lock: el SO/navegador puede liberarlo por
+    // inactividad o atenuacion aunque la pestana siga visible. Reintentamos
+    // mientras el engine este activo (no solo en visibilitychange).
+    if(!this.wakeLock && document.visibilityState==='visible'){ this._acquireWake(); }
+    const now=performance.now(); let dt=(now-this.lastTick)/1000; this.lastTick=now;
+    if(dt>5) dt=5;
+    if(this.state===ST.PREP){
+      this.secLeft-=dt; const w=Math.ceil(this.secLeft);
+      if(w<=3 && w>=1 && !this._prepTickFired[w]){ this._prepTickFired[w]=true; this.cue.play('tick'); }
+      if(this.secLeft<=0){ this._enterWork(); } else this._emitTick();
+    } else if(this.state===ST.WORK_TIME){
+      this.secLeft-=dt;
+      if(this.secLeft<=3 && !this._last3Fired){ this._last3Fired=true; this.cue.play('last3'); this.onCue('last3'); }
+      if(this.secLeft<=0){ this._closeWork(); } else this._emitTick();
+    } else if(this.state===ST.WORK_REPS){
+      // Modo reps: SIN auto-cierre por tiempo. La serie efectiva solo termina
+      // cuando el usuario pulsa "Serie hecha" (setDone) o salta. Esto evita que
+      // series largas / rest-pause / dejar la pantalla falseen los datos.
+      this._emitTick();
+    } else if(this.state===ST.REST){
+      const elapsed=(Date.now()-this.restStartedAt)/1000;
+      // El objetivo de descanso solo cuenta hacia abajo hasta 0. Una vez cumplido,
+      // NO se auto-avanza: el cronometro pasa a "descanso extra" contando hacia arriba
+      // para permitir que elapsed alcance longRestSec y se arme la penalizacion.
+      if(!this.restTargetReached){
+        this.secLeft-=dt;
+        if(this.secLeft<=0){ this.secLeft=0; this.restTargetReached=true; this.cue.play('restend'); this.onCue('restend'); }
+      }
+      if(!this.penaltyArmed && elapsed>=this.cfg.longRestSec){ this.penaltyArmed=true; this._enterPenalty(); return; }
+      this._emitTick();
+    }
+  }
+  async _acquireWake(){
+    if(!CFG.prefs.wakelock_on) return;
+    if(this._wakePending) return; // evita peticiones concurrentes desde el tick
+    this._wakePending=true;
+    try{
+      if('wakeLock' in navigator){
+        this.wakeLock=await navigator.wakeLock.request('screen');
+        // si el SO lo libera, lo dejamos a null para que el tick lo reintente
+        if(this.wakeLock){ this.wakeLock.addEventListener('release', ()=>{ this.wakeLock=null; }); }
+      }
+    }catch(e){ this.wakeLock=null; }
+    finally{ this._wakePending=false; }
+  }
+  async _reacquireWake(){
+    if(!('wakeLock' in navigator) || !CFG.prefs.wakelock_on) return;
+    if(this.state===ST.IDLE||this.state===ST.FINISHED) return;
+    if(!this.wakeLock){ await this._acquireWake(); }
+  }
+  _releaseWake(){ try{ if(this.wakeLock){ this.wakeLock.release(); this.wakeLock=null; } }catch(e){} }
+  _snap(){
+    const s=this._cur()||{};
+    return {
+      state:this.state, paused:this.state===ST.PAUSED,
+      stepIndex:this.i, totalSteps:this.plan.length,
+      isLastSet:this.i===this.plan.length-1,
+      secondsLeft:Math.max(0,Math.ceil(this.secLeft)),
+      phaseTotal:this.phaseTotal,
+      restTargetReached:!!this.restTargetReached,
+      restExtraSec:(this.state===ST.REST && this.restTargetReached && this.restStartedAt)
+        ? Math.max(0, Math.round((Date.now()-this.restStartedAt)/1000) - this.phaseTotal) : 0,
+      progress:this.phaseTotal>0 ? 1-(Math.max(0,this.secLeft)/this.phaseTotal) : 0,
+      step:{ exId:s.exId, exName:s.exName, muscle:s.muscle, equipment:s.equipment,
+             setNumber:s.setNumber, setType:s.setType, mode:s.mode,
+             weight:s.weight, targetReps:s.targetReps, workSec:s.workSec, restSec:s.restSec,
+             rir:s.rir },
+      penalty:s._penaltyChallenge||null,
+      rampGroup:s._rampGroup||0, rampOf:s._rampOf||0
+    };
+  }
+  _emitState(){ this.onState(this._snap()); }
+  _emitTick(){ this.onTick(this._snap()); }
+}
+
+/* ====================================================================
+   PLAYER full-screen — render puro, consume snapshots del engine
+   ==================================================================== */
+const Player = (() => {
+  const RING_LEN = 2*Math.PI*115;
+  const $ = id => document.getElementById(id);
+  let cb={}; let repVal=0;
+  const el={};
+  function cache(){
+    ['player','pl_mid','pl_phase','pl_ring','pl_prg','pl_num','pl_numsub','pl_exname',
+     'pl_setlbl','pl_type','pl_target','pl_prog','pl_barfill','pl_next','pl_go',
+     'pl_subrow','pl_back','pl_skip','pl_exit','pl_pause','pl_summary','pl_sum_big','pl_sum_line'
+    ].forEach(k=>el[k]=$(k));
+    el.pl_prg.style.strokeDasharray=RING_LEN;
+  }
+  function init(callbacks){
+    cb=callbacks||{}; cache();
+    el.pl_go.onclick   = ()=>cb.onPrimary && cb.onPrimary();
+    el.pl_exit.onclick = ()=>cb.onExit && cb.onExit();
+    el.pl_pause.onclick= ()=>cb.onPause && cb.onPause();
+    el.pl_back.onclick = ()=>cb.onBack && cb.onBack();
+    el.pl_skip.onclick = ()=>cb.onSkip && cb.onSkip();
+  }
+  function open(){ el.player.classList.add('show'); el.player.setAttribute('aria-hidden','false');
+    el.pl_summary.classList.remove('show'); el.pl_mid.style.display=''; }
+  function close(){ el.player.classList.remove('show'); el.player.setAttribute('aria-hidden','true'); }
+  function swap(fn){
+    el.pl_mid.classList.add('swapping');
+    setTimeout(()=>{ fn&&fn(); el.pl_mid.classList.remove('swapping'); }, 180);
+  }
+  function render(vm){
+    el.pl_prog.textContent=vm.progress||'';
+    el.pl_barfill.style.width=Math.round((vm.progressPct||0)*100)+'%';
+    el.pl_next.innerHTML=vm.next||'';
+    el.pl_subrow.style.display=vm.showNav?'flex':'none';
+
+    el.pl_phase.textContent=vm.phaseLabel||'';
+    el.pl_phase.className='pl-phase '+(vm.phase==='rest'?'rest':vm.phase==='penalty'?'pen':
+      (vm.phase==='work_reps'||vm.phase==='work_time')?'work':'');
+    const tone=(vm.ring&&vm.ring.tone)||'accent';
+    el.pl_ring.className='pl-ring '+(tone==='warn'?'warn':tone==='done'?'done':'rest')+(vm.ring&&vm.ring.pulse?' pulse':'');
+    const pct=vm.ring?Math.max(0,Math.min(1,vm.ring.pct)):1;
+    el.pl_prg.style.strokeDashoffset=RING_LEN*(1-pct);
+
+    if(vm.phase==='reps_input'){ renderRepsInput(vm); }
+    else { restoreRing(); el.pl_num.textContent=vm.bigNumber ?? ''; el.pl_numsub.textContent=vm.numSub||''; }
+
+    el.pl_exname.textContent=vm.exName||'';
+    el.pl_setlbl.textContent=vm.setLabel||'';
+    el.pl_type.textContent=vm.setTypeLabel||'';
+    el.pl_type.className='pl-type '+(vm.setType||'working');
+    el.pl_target.textContent=vm.target||'';
+    el.pl_target.style.display = (vm.phase==='reps_input') ? 'none' : 'block';
+
+    if(vm.phase==='penalty' && vm.penaltyText){
+      el.pl_target.style.display='block'; el.pl_target.textContent=vm.penaltyText; el.pl_target.style.color='var(--warn)';
+    } else { el.pl_target.style.color=''; }
+
+    const p=vm.primary||{label:'',tone:'accent'};
+    el.pl_go.textContent=p.label;
+    el.pl_go.className='pl-go '+(p.tone && p.tone!=='accent' ? p.tone : '');
+  }
+  function renderRepsInput(vm){
+    repVal=vm.repDefault ?? 0;
+    el.pl_ring.style.display='none';
+    let s=el.pl_mid.querySelector('.pl-stepper');
+    if(!s){
+      s=document.createElement('div'); s.className='pl-stepper';
+      s.innerHTML=`<div class="pl-step" data-d="-1">−</div>
+        <div class="pl-repval" id="pl_repval">0</div>
+        <div class="pl-step" data-d="1">+</div>`;
+      el.pl_ring.insertAdjacentElement('afterend', s);
+      s.querySelectorAll('.pl-step').forEach(b=>b.onclick=()=>{
+        repVal=Math.max(0, repVal+(+b.dataset.d));
+        s.querySelector('#pl_repval').textContent=repVal; vibe(8);
+      });
+    }
+    s.style.display='flex';
+    s.querySelector('#pl_repval').textContent=repVal;
+    el.pl_go.onclick=()=>{ cb.onSetReps && cb.onSetReps(repVal); };
+  }
+  function restoreRing(){
+    el.pl_ring.style.display='';
+    const s=el.pl_mid.querySelector('.pl-stepper'); if(s) s.style.display='none';
+    el.pl_go.onclick=()=>cb.onPrimary && cb.onPrimary();
+  }
+  function showSummary(big, line, onClose){
+    el.pl_mid.style.display='none';
+    el.pl_subrow.style.display='none';
+    el.pl_summary.classList.add('show');
+    el.pl_sum_big.textContent=big; el.pl_sum_line.textContent=line;
+    el.pl_go.className='pl-go ok'; el.pl_go.textContent='Cerrar'; el.pl_go.onclick=onClose;
+    el.pl_prog.textContent='Sesión completada';
+    el.pl_barfill.style.width='100%';
+  }
+  return { init, open, close, render, swap, showSummary };
+})();
+
+/* ====================================================================
+   PUENTE engine <-> player <-> persistencia
+   ==================================================================== */
+let ENGINE=null;
+const REST_TS={}; // mapa dbId -> Date.now() inicio descanso (para gamificacion persistRest)
+
+function planFromSets(sets){
+  // ordena: si hay set_order lo usa; si no, por id (orden de insercion).
+  const sorted=[...sets].sort((a,b)=>{
+    if(SCHEMA.set_order && a.set_order!=null && b.set_order!=null) return a.set_order-b.set_order;
+    return a.id-b.id;
+  });
+  const TYPE_LABEL={warmup:'Calentamiento', approach:'Aproximación', working:'Efectiva'};
+  // contexto de grupo (serie X/Y por ejercicio) para etiquetas
+  const byEx={}; sorted.forEach(s=>{ (byEx[s.exercise_id] ||= []).push(s); });
+  return sorted.map(s=>{
+    const ex=s.exercises||{};
+    const grp=byEx[s.exercise_id]; const pos=grp.indexOf(s)+1;
+    return {
+      dbId:s.id, exId:s.exercise_id, exName:ex.name||'Ejercicio',
+      muscle:ex.muscle_group||'', equipment:ex.equipment||'',
+      setNumber:s.set_number, setType:stOf(s), mode:modeOf(s),
+      weight:s.weight_kg,
+      _typeLabel:TYPE_LABEL[stOf(s)]||'Efectiva',
+      _rampOf:grp.length, _rampGroup:pos,
+      targetReps:s.reps ?? null,
+      workSec:(SCHEMA.work_seconds && s.work_seconds) ? s.work_seconds : (modeOf(s)==='time'?CFG.default_work_seconds:undefined),
+      restSec:(SCHEMA.target_rest_seconds && s.target_rest_seconds) ? s.target_rest_seconds : CFG.default_rest_seconds,
+      workCapSec:120, prepSec:CFG.prep_seconds, repsDone:null
+    };
   });
 }
-loadSession();
 
-// ---- timer descanso
+function fmtClock(sec){ const m=Math.floor(sec/60), s=sec%60; return m>0 ? `${m}:${String(s).padStart(2,'0')}` : String(s); }
+
+function snapToVM(snap){
+  const st=snap.step||{};
+  const typeLabel = {warmup:'Calentamiento',approach:'Aproximación',working:'Efectiva'}[st.setType]||'Efectiva';
+  const progressTxt = `Serie ${snap.stepIndex+1}/${snap.totalSteps}`;
+  const progressPct = snap.totalSteps>0 ? snap.stepIndex/snap.totalSteps : 0;
+  const setLabel = `Serie ${st.setNumber||snap.stepIndex+1}`;
+  // siguiente paso (preview)
+  let next='';
+  if(ENGINE && snap.stepIndex+1 < ENGINE.plan.length){
+    const nx=ENGINE.plan[snap.stepIndex+1];
+    const nl={warmup:'calentamiento',approach:'aproximación',working:'efectiva'}[nx.setType]||'serie';
+    next = `Siguiente: <b>${nx.exName}</b> · ${nl}`;
+  } else { next='Última serie de la sesión'; }
+
+  const targetTxt = st.mode==='time'
+    ? `OBJETIVO · ${st.weight!=null?st.weight+' kg · ':''}máximas reps en ${st.workSec||CFG.default_work_seconds}s`
+    : `OBJETIVO · ${st.weight!=null?st.weight+' kg':'— kg'} × ${st.targetReps??'—'} reps`;
+
+  const base={ exName:st.exName, setLabel, setType:st.setType, setTypeLabel:typeLabel,
+    target:targetTxt, next, progress:progressTxt, progressPct, showNav:true };
+
+  switch(snap.state){
+    case ST.PREP:
+      return {...base, phase:'prep', phaseLabel:'Prepárate',
+        bigNumber:String(snap.secondsLeft), numSub:'segundos',
+        ring:{pct:snap.phaseTotal>0?snap.secondsLeft/snap.phaseTotal:1, tone:'accent', pulse:false},
+        primary:{label:'Empezar ya',tone:'accent'} };
+    case ST.WORK_REPS:
+      return {...base, phase:'work_reps', phaseLabel:'Trabajo',
+        bigNumber:String(st.targetReps??'—'), numSub:'reps objetivo',
+        ring:{pct:1, tone:'accent', pulse:true},
+        primary:{label:'Serie hecha ✓',tone:'ok'} };
+    case ST.WORK_TIME:
+      return {...base, phase:'work_time', phaseLabel:'AMRAP',
+        bigNumber:String(snap.secondsLeft), numSub:'máx reps',
+        ring:{pct:snap.phaseTotal>0?snap.secondsLeft/snap.phaseTotal:1, tone:snap.secondsLeft<=3?'warn':'accent', pulse:false},
+        primary:{label:'Terminar antes',tone:'warn'} };
+    case ST.LOGGING:{
+      // modo reps con autoConfirm desactivado: pedimos confirmar; modo time: stepper
+      if(st.mode==='time'){
+        return {...base, phase:'reps_input', phaseLabel:'¿Cuántas reps?',
+          repDefault:st.targetReps??0,
+          primary:{label:'Confirmar reps',tone:'ok'}, showNav:false };
+      }
+      return {...base, phase:'work_reps', phaseLabel:'Anotar',
+        bigNumber:String(st.targetReps??'—'), numSub:'reps · confirma',
+        ring:{pct:1, tone:'done', pulse:false},
+        primary:{label:'Confirmar y descansar',tone:'ok'} };
+    }
+    case ST.REST:
+      if(snap.restTargetReached){
+        // objetivo cumplido: cronometro cuenta hacia arriba (descanso extra)
+        return {...base, phase:'rest', phaseLabel:'Objetivo cumplido',
+          bigNumber:'+'+fmtClock(snap.restExtraSec||0), numSub:'descanso extra',
+          ring:{pct:1, tone:'warn', pulse:true},
+          primary:{label:'Siguiente serie →',tone:'ok'} };
+      }
+      return {...base, phase:'rest', phaseLabel:'Descanso',
+        bigNumber:fmtClock(snap.secondsLeft), numSub:'descanso',
+        ring:{pct:snap.phaseTotal>0?snap.secondsLeft/snap.phaseTotal:1, tone:snap.secondsLeft<=5?'warn':'accent', pulse:false},
+        primary:{label:'Saltar descanso →',tone:'ghost'} };
+    case ST.PENALTY:{
+      const ch=snap.penalty||{t:'Una serie más',sub:''};
+      return {...base, phase:'penalty', phaseLabel:'Penalización',
+        bigNumber:'⏳', numSub:'descanso largo',
+        ring:{pct:1, tone:'warn', pulse:true},
+        penaltyText:`Te pasaste de descanso: ${ch.t}. ${ch.sub||''}`,
+        primary:{label:'Acepto el reto ✓',tone:'warn'}, showNav:true };
+    }
+    default:
+      return {...base, phase:'prep', phaseLabel:'—', bigNumber:'', numSub:'', ring:{pct:1}, primary:{label:'',tone:'accent'} };
+  }
+}
+
+function paintFromSnap(snap, withSwap){
+  const vm=snapToVM(snap);
+  if(withSwap) Player.swap(()=>Player.render(vm)); else Player.render(vm);
+}
+
+async function startGuided(){
+  if(!CUR_SETS.length){ toast('No hay sesión'); return; }
+  await loadProfilePrefs();
+  const plan=planFromSets(CUR_SETS);
+  ENGINE=new ForjaEngine(plan, {
+    prepSec:CFG.prep_seconds, longRestSec:CFG.rest_penalty_seconds, defaultRestSec:CFG.default_rest_seconds,
+    // Manos libres: en modo reps "Serie hecha" cierra Y confirma en UN solo toque
+    // (la pantalla "Anotar" no permitia editar reps, asi que el 2o toque era friccion pura).
+    // El modo time conserva su stepper para registrar las AMRAP reps reales.
+    autoConfirmReps:true
+  });
+  ENGINE.setMute(!CFG.prefs.sound_on);
+
+  ENGINE.onState = snap => paintFromSnap(snap, true);
+  ENGINE.onTick  = snap => paintFromSnap(snap, false);
+
+  ENGINE.onSetClosed = async rec => {
+    // persistir la serie cerrada (autosave inmediato)
+    const patch={ weight_kg:rec.weight, reps:rec.reps, done:true };
+    if(SCHEMA.set_type && rec.setType) patch.set_type=rec.setType;
+    if(SCHEMA.mode && rec.mode) patch.mode=rec.mode;
+    if(rec.rir!=null) patch.rir=rec.rir;
+    if(SCHEMA.target_rest_seconds && rec.restTargetSec!=null) patch.target_rest_seconds=rec.restTargetSec;
+    if(rec.dbId) await saveSetNow(rec.dbId, patch);
+    // marca inicio de descanso para persistRest gamificacion
+    if(rec.dbId) REST_TS[rec.dbId]=Date.now();
+  };
+
+  ENGINE.onRestClosed = async rec => {
+    // telemetria de descanso real + penalizacion
+    if(rec.dbId){
+      const patch={};
+      if(SCHEMA.actual_rest_seconds) patch.actual_rest_seconds=rec.actualRestSec;
+      if(SCHEMA.rest_over_limit) patch.rest_over_limit=!!rec.overLimit;
+      if(Object.keys(patch).length) await saveSetNow(rec.dbId, patch);
+    }
+    if(rec.overLimit){
+      // registra evento de penalizacion (degrada si la tabla no existe)
+      try{
+        await sb.from('rest_penalty_events').insert({
+          workout_id:CUR_WORKOUT?CUR_WORKOUT.id:null,
+          set_id:rec.dbId||null,
+          actual_rest_seconds:rec.actualRestSec,
+          limit_seconds:CFG.rest_penalty_seconds,
+          challenge_text:rec.challenge||(CFG.prefs.penalty_type==='extra_set'?'Una serie más':'10 flexiones'),
+          completed:!!rec.penaltyDone
+        });
+      }catch(_){}
+    }
+  };
+
+  ENGINE.onPenalty = ch => { /* la UI ya pinta el reto en el VM (phase penalty) */ };
+
+  ENGINE.onFinished = async summ => {
+    Player.showSummary('🔥', `${summ.completed}/${summ.totalSteps} series completadas. Buen trabajo.`, ()=>closeGuided());
+    await onSessionFinished(summ);
+  };
+
+  // wiring de los botones del player (una vez)
+  Player.init({
+    onPrimary: ()=>handlePrimary(),
+    onSetReps: n=>{ if(ENGINE) ENGINE.confirmLog({reps:n}); },
+    onPause:   ()=>{ if(!ENGINE) return; if(ENGINE.state===ST.PAUSED){ENGINE.resume();document.getElementById('pl_pause').textContent='⏸';}
+                     else {ENGINE.pause();document.getElementById('pl_pause').textContent='▶';} },
+    onSkip:    ()=>{ if(ENGINE) ENGINE.skip(); },
+    onBack:    ()=>{ if(ENGINE) ENGINE.back(); },
+    onExit:    ()=>closeGuided()
+  });
+
+  document.getElementById('timerbar').classList.add('hidden'); // no duplicar descanso
+  Player.open();
+  ENGINE.start();
+}
+
+/* el boton primario significa cosas distintas segun el estado */
+function handlePrimary(){
+  if(!ENGINE) return;
+  switch(ENGINE.state){
+    case ST.PREP:        // empezar ya: saltar la cuenta atras
+      ENGINE.secLeft=0; break;
+    case ST.WORK_REPS:   ENGINE.setDone(); break;
+    case ST.WORK_TIME:   ENGINE.finishWorkTime(); break;
+    case ST.LOGGING:     ENGINE.confirmLog(null); break;
+    case ST.REST:        ENGINE.skipRest(); break;
+    case ST.PENALTY:     ENGINE.resolvePenalty(); break;
+  }
+}
+
+function closeGuided(){
+  if(ENGINE){ ENGINE.stop(); ENGINE=null; }
+  Player.close();
+  document.getElementById('timerbar').classList.remove('hidden');
+  loadSession();        // refresca overview con lo guardado
+  renderGamification();
+}
+
+async function onSessionFinished(summ){
+  await bumpStreak();
+  await evaluateAchievementsLive();
+  renderGamification();
+}
+
+/* ====================================================================
+   GAMIFICACION — racha, recomposicion, logros (recomposicion, NO peso)
+   ==================================================================== */
+const ACHIEVEMENTS = [
+  {code:'first_set',  icon:'🔥', name:'Primera chispa',     desc:'Cierra tu primera serie.',
+    pred:s=>s.sets.some(x=>x.done && isWorking(x))},
+  {code:'ramp_perfect',icon:'🎯',name:'Rampa perfecta',     desc:'Haz todas las series de un ejercicio.',
+    pred:s=>countPerfectRamps(s)>=1},
+  {code:'warmup_pro', icon:'🪜', name:'Sin atajos',         desc:'Completa la rampa de aproximación 5 veces.',
+    pred:s=>countPerfectRamps(s)>=5},
+  {code:'week_full',  icon:'🗓️', name:'Semana completa',    desc:'6 días activos en una ventana de 7.',
+    pred:(s,d)=>d.streak.last7.filter(x=>x.on).length>=6},
+  {code:'streak_7',   icon:'⚡', name:'Una semana viva',    desc:'7 de racha (entrenar o moverte).',
+    pred:(s,d)=>d.streak.best>=7},
+  {code:'streak_30',  icon:'🏔️', name:'Un mes de constancia',desc:'30 de racha.',
+    pred:(s,d)=>d.streak.best>=30},
+  {code:'bench_80',   icon:'🏋️', name:'Banca 80',           desc:'80 kg en press de banca.',
+    pred:(s,d)=>d.recomp.benchBest>=80},
+  {code:'bench_90',   icon:'🏋️', name:'Banca 90',           desc:'90 kg en press de banca.',
+    pred:(s,d)=>d.recomp.benchBest>=90},
+  {code:'bench_100',  icon:'👑', name:'Banca 100 — Boss',   desc:'El objetivo: 100 kg en banca.',
+    pred:(s,d)=>d.recomp.benchBest>=100},
+  {code:'recomp_on',  icon:'⚖️', name:'Recomposición real', desc:'Misma báscula, más tonelaje.',
+    pred:(s,d)=>d.recomp.recompSignal},
+  {code:'ton_record', icon:'📈', name:'Semana récord',      desc:'Tu mayor tonelaje semanal hasta hoy.',
+    pred:(s,d)=>d.recomp.tonNow>0 && d.recomp.tonNow>=bestWeeklyTon(s)},
+  {code:'early_bird', icon:'🌅', name:'Madrugador',         desc:'Entrena antes de las 9:00.',
+    pred:s=>s.workouts.some(w=>w.created_at && new Date(w.created_at).getHours()<9)},
+  {code:'no_long_rest',icon:'⏱️',name:'Ritmo de máquina',  desc:'Sesión entera sin descansos largos.',
+    pred:(s,d)=>d.cleanRestSession},
+  {code:'comeback',   icon:'🔁', name:'Vuelta al ruedo',    desc:'Vuelves a entrenar tras un parón.',
+    pred:s=>hasComeback(s)},
+];
+
+let ACH_AVAILABLE=true;     // achievements table
+let STREAK_AVAILABLE=true;  // streaks table
+let RESTCOL_AVAILABLE=true; // actual_rest_seconds column
+
+async function buildStatsSnapshot(){
+  await probeCheckinSchema(); // fija CHECKIN_HAS_RECOVERY antes de leer checkins
+  const restSel = 'id,workout_id,exercise_id,set_number,weight_kg,reps,is_warmup,done, exercises(name)';
+  // intentamos pedir set_type/actual_rest si existen; supabase ignora columnas no pedidas, asi que pedimos siempre
+  const sel = 'id,workout_id,exercise_id,set_number,weight_kg,reps,is_warmup,done'
+    + (SCHEMA.set_type?',set_type':'')
+    + (SCHEMA.actual_rest_seconds?',actual_rest_seconds':'')
+    + ', exercises(name)';
+  const queries=[
+    sb.from('workouts').select('id,date,day_label,created_at'),
+    sb.from('workout_sets').select(sel),
+    sb.from('bodyweight_logs').select('date,weight_kg,body_fat_pct').order('date',{ascending:true}),
+    sb.from('checkins').select('date,soreness'+(CHECKIN_HAS_RECOVERY?',active_recovery':'')),
+  ];
+  if(ACH_AVAILABLE) queries.push(sb.from('achievements').select('code'));
+
+  const res=await Promise.all(queries);
+  const [wRes,sRes,bwRes,ciRes,achRes]=res;
+  if(achRes && achRes.error) ACH_AVAILABLE=false;
+  if(ciRes && ciRes.error){ CHECKIN_HAS_RECOVERY=false; }
+  return {
+    workouts:wRes.data||[],
+    sets:sRes.data||[],
+    bw:bwRes.data||[],
+    checkins:(ciRes&&ciRes.data)||[],
+    unlocked:new Set(((achRes&&achRes.data)||[]).map(a=>a.code)),
+  };
+}
+
+function computeStreak(snap){
+  const active=new Set();
+  const setsByWorkout={}; snap.sets.forEach(s=>{ (setsByWorkout[s.workout_id] ||= []).push(s); });
+  snap.workouts.forEach(w=>{ const list=setsByWorkout[w.id]||[];
+    if(list.some(s=>s.done && isWorking(s))) active.add(dayKey(w.date)); });
+  snap.checkins.forEach(c=>{ if(c.active_recovery) active.add(dayKey(c.date)); });
+
+  const days=[...active].sort();
+  if(!days.length) return {current:0,best:0,last7:last7Map(active)};
+  let best=0,run=0,prev=null;
+  for(const d of days){
+    if(prev===null) run=1;
+    else { const gap=daysBetween(d,prev); run=(gap-1)<=CFG.streakGraceDays ? run+1 : 1; }
+    best=Math.max(best,run); prev=d;
+  }
+  let current=0,misses=0; const cursor=new Date(todayISO+'T00:00:00');
+  while(true){
+    const k=dayKey(cursor);
+    if(active.has(k)){ current++; misses=0; }
+    else { misses++; if(misses>CFG.streakGraceDays) break; }
+    cursor.setDate(cursor.getDate()-1);
+    if(daysBetween(dayKey(cursor),days[0]) < -1) break;
+  }
+  return {current,best,last7:last7Map(active)};
+}
+function last7Map(active){ const out=[]; const c=new Date(todayISO+'T00:00:00');
+  for(let i=0;i<7;i++){ const k=dayKey(c); out.unshift({d:k,on:active.has(k)}); c.setDate(c.getDate()-1); } return out; }
+
+function computeRecomp(snap){
+  let benchBest=0;
+  snap.sets.forEach(s=>{ const name=(s.exercises?.name||'').toLowerCase();
+    if(name.includes('banca') && isWorking(s) && (s.reps||0)>=1) benchBest=Math.max(benchBest, s.weight_kg||0); });
+  const benchPct=Math.min(100, Math.round(benchBest/CFG.benchTargetKg*100));
+  const bw=snap.bw; let weightStable=null;
+  if(bw.length>=4){
+    const recent=bw.slice(-7).map(x=>x.weight_kg).filter(Boolean);
+    const older=bw.slice(-14,-7).map(x=>x.weight_kg).filter(Boolean);
+    const avg=a=>a.reduce((p,c)=>p+c,0)/a.length;
+    if(recent.length && older.length){ weightStable=Math.abs(avg(recent)-avg(older))<=CFG.weightBandKg; }
+  }
+  const tonByWeek=(offset)=>{
+    const start=new Date(todayISO+'T00:00:00'); start.setDate(start.getDate()-(offset+7));
+    const end=new Date(todayISO+'T00:00:00');   end.setDate(end.getDate()-offset);
+    const wInRange=new Set(snap.workouts.filter(w=>{const d=new Date(String(w.date).slice(0,10)+'T00:00:00');return d>start&&d<=end;}).map(w=>w.id));
+    return snap.sets.filter(s=>wInRange.has(s.workout_id)&&isWorking(s)&&s.done)
+      .reduce((p,s)=>p+(s.weight_kg||0)*(s.reps||0),0);
+  };
+  const tonNow=tonByWeek(0), tonPrev=tonByWeek(7);
+  const tonUp=tonPrev>0 && tonNow>tonPrev;
+  const recompSignal=!!weightStable && tonUp;
+  const tonDeltaPct=tonPrev>0 ? Math.round((tonNow-tonPrev)/tonPrev*100) : 0;
+  return {benchBest,benchPct,weightStable,recompSignal,tonNow,tonPrev,tonDeltaPct};
+}
+
+function countPerfectRamps(snap){
+  const byW={}; snap.sets.forEach(s=>{ (byW[s.workout_id+'_'+s.exercise_id] ||= []).push(s); });
+  let n=0;
+  for(const k in byW){ const list=byW[k];
+    const hasWarm=list.some(s=>stOf(s)!=='working');
+    const allDone=list.length>=2 && list.every(s=>s.done);
+    if(hasWarm && allDone) n++; }
+  return n;
+}
+function isoWeek(d){const dt=new Date(String(d).slice(0,10)+'T00:00:00');const o=new Date(dt.getFullYear(),0,1);
+  return dt.getFullYear()+'-'+Math.ceil((((dt-o)/86400000)+o.getDay()+1)/7);}
+function bestWeeklyTon(snap){
+  const byWeek={};
+  snap.workouts.forEach(w=>{ const wk=isoWeek(w.date);
+    const sets=snap.sets.filter(s=>s.workout_id===w.id&&isWorking(s)&&s.done);
+    byWeek[wk]=(byWeek[wk]||0)+sets.reduce((p,s)=>p+(s.weight_kg||0)*(s.reps||0),0); });
+  const vals=Object.values(byWeek); return vals.length?Math.max(0,...vals):0;
+}
+function hasComeback(snap){
+  const days=[...new Set(snap.workouts.map(w=>dayKey(w.date)))].sort();
+  for(let i=1;i<days.length;i++) if(daysBetween(days[i],days[i-1])>=7) return true;
+  return false;
+}
+
+async function evaluateAchievements(snap, derived){
+  if(!ACH_AVAILABLE) return [];
+  const fresh=[];
+  for(const a of ACHIEVEMENTS){
+    if(snap.unlocked.has(a.code)) continue;
+    let ok=false; try{ ok=a.pred(snap,derived); }catch(e){ ok=false; }
+    if(ok) fresh.push(a);
+  }
+  if(fresh.length){
+    const {error}=await sb.from('achievements')
+      .upsert(fresh.map(a=>({code:a.code})), {onConflict:'code', ignoreDuplicates:true});
+    if(error){ ACH_AVAILABLE=false; return []; }
+    fresh.forEach(a=>{ snap.unlocked.add(a.code); celebrate(a); });
+  }
+  return fresh;
+}
+function celebrate(a){ toast(`🏅 ${a.name}`); vibe([60,40,120]); }
+
+async function evaluateAchievementsLive(){
+  const snap=await buildStatsSnapshot();
+  const streak=computeStreak(snap);
+  const recomp=computeRecomp(snap);
+  const cleanRestSession = RESTCOL_AVAILABLE && SCHEMA.actual_rest_seconds
+    && snap.sets.filter(s=>s.actual_rest_seconds!=null).every(s=>s.actual_rest_seconds<=CFG.rest_penalty_seconds)
+    && snap.sets.some(s=>s.done && isWorking(s));
+  await evaluateAchievements(snap, {streak,recomp,cleanRestSession});
+}
+
+/* racha persistida (streaks singleton). Degrada si la tabla no existe. */
+async function bumpStreak(){
+  if(!STREAK_AVAILABLE) return;
+  let res=await sb.from('streaks').select('*').eq('id',1).maybeSingle();
+  if(res.error){ STREAK_AVAILABLE=false; return; }
+  let s=res.data;
+  if(!s){ await sb.from('streaks').upsert({id:1,current_streak:0,longest_streak:0}); s={id:1,current_streak:0,longest_streak:0,last_active_date:null}; }
+  const today=todayISO;
+  let cur=1;
+  if(s.last_active_date){
+    const days=daysBetween(today, s.last_active_date);
+    if(days===0) return; // ya conto hoy
+    cur = days===1 ? (s.current_streak||0)+1 : 1;
+  }
+  await sb.from('streaks').update({
+    current_streak:cur, longest_streak:Math.max(cur, s.longest_streak||0),
+    last_active_date:today, updated_at:new Date().toISOString()
+  }).eq('id',1);
+}
+
+async function renderGamification(){
+  const host=document.getElementById('gam');
+  const snap=await buildStatsSnapshot();
+  const streak=computeStreak(snap);
+  const recomp=computeRecomp(snap);
+  const cleanRestSession = SCHEMA.actual_rest_seconds
+    && snap.sets.filter(s=>s.actual_rest_seconds!=null).every(s=>s.actual_rest_seconds<=CFG.rest_penalty_seconds)
+    && snap.sets.some(s=>s.done && isWorking(s));
+  const derived={streak,recomp,cleanRestSession};
+  await evaluateAchievements(snap, derived);
+
+  document.getElementById('streakchip').textContent=`🔥 ${streak.current}`;
+
+  const dots=streak.last7.map(x=>`<span class="sdot ${x.on?'on':'off'}"></span>`).join('');
+  const badges=ACHIEVEMENTS.map(a=>{
+    const on=snap.unlocked.has(a.code);
+    return `<div class="badge ${on?'on':''}" title="${a.desc}">
+      <div class="b-ico">${on?a.icon:'🔒'}</div>
+      <div class="b-name">${a.name}</div>
+      <div class="b-desc">${on?'Desbloqueado':a.desc}</div></div>`;
+  }).join('');
+  const R=52, C=2*Math.PI*R, off=C*(1-recomp.benchPct/100);
+
+  host.innerHTML=`
+    <h2>Progreso</h2>
+    <div class="recomp-row">
+      <svg width="128" height="128" viewBox="0 0 128 128" class="ring" aria-hidden="true">
+        <circle cx="64" cy="64" r="${R}" stroke="var(--stroke)" stroke-width="10" fill="none"/>
+        <circle cx="64" cy="64" r="${R}" stroke="var(--accent)" stroke-width="10" fill="none"
+          stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"
+          transform="rotate(-90 64 64)"/>
+        <text x="64" y="60" text-anchor="middle" class="ring-num">${recomp.benchBest||0}</text>
+        <text x="64" y="80" text-anchor="middle" class="ring-sub">/ ${CFG.benchTargetKg} kg banca</text>
+      </svg>
+      <div class="recomp-side">
+        <div class="streak-big">🔥 ${streak.current} <span>días</span></div>
+        <div class="streak-sub">Mejor racha: ${streak.best} · <span class="streak7">${dots}</span></div>
+        ${recomp.recompSignal
+          ? `<div class="recomp-flag ok">⚖️ Recomponiendo: misma báscula, +${recomp.tonDeltaPct}% tonelaje</div>`
+          : `<div class="recomp-flag">Mantén el peso y sube el tonelaje para recomponer.</div>`}
+      </div>
+    </div>
+    <div class="badges">${badges}</div>`;
+}
+
+/* ====================================================================
+   TIMER de descanso libre (overview, v0.1)
+   ==================================================================== */
 let tInt,tLeft=0;
 function fmt(s){return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;}
 function startTimer(s){stopTimer();tLeft=s;document.getElementById('tdisp').textContent=fmt(tLeft);
   tInt=setInterval(()=>{tLeft--;document.getElementById('tdisp').textContent=tLeft<=0?'¡Ya!':fmt(tLeft);
-    if(tLeft<=0){stopTimer();if(navigator.vibrate)navigator.vibrate([120,60,120]);beep();}},1000);}
+    if(tLeft<=0){stopTimer();vibe([120,60,120]);beep();}},1000);}
 function stopTimer(){clearInterval(tInt);if(tLeft<=0)setTimeout(()=>document.getElementById('tdisp').textContent='Descanso',1500);else document.getElementById('tdisp').textContent='Descanso';}
-function beep(){try{const a=new(window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator();const g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;o.start();g.gain.setValueAtTime(.25,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.5);o.stop(a.currentTime+.5);}catch(e){}}
+function beep(){if(!CFG.prefs.sound_on)return;try{const a=new(window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator();const g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;o.start();g.gain.setValueAtTime(.25,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.5);o.stop(a.currentTime+.5);}catch(e){}}
+window.startTimer=startTimer; window.stopTimer=stopTimer;
+
+/* ====================================================================
+   ARRANQUE
+   ==================================================================== */
+(async()=>{
+  await loadProfilePrefs();
+  await loadSession();
+  await renderGamification();
+})();
+
+/* ====================================================================
+   PWA — registro del Service Worker + instalacion (v0.1, intacto)
+   CRITICO subpath /forja/: scope './' y sw.js relativo. NUNCA '/'.
+   ==================================================================== */
+(function(){
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',()=>{
+      navigator.serviceWorker.register('./sw.js',{scope:'./'})
+        .then(reg=>{
+          if(reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
+          reg.addEventListener('updatefound',()=>{
+            const nw=reg.installing; if(!nw)return;
+            nw.addEventListener('statechange',()=>{
+              if(nw.state==='installed' && navigator.serviceWorker.controller){ nw.postMessage('SKIP_WAITING'); }
+            });
+          });
+        })
+        .catch(()=>{});
+      let refreshed=false;
+      navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(refreshed)return; refreshed=true; });
+    });
+  }
+
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+  const ua=navigator.userAgent||'';
+  const isIOS=/iphone|ipad|ipod/i.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  const isAndroid=/android/i.test(ua);
+  const card=document.getElementById('installCard');
+  const btn=document.getElementById('installBtn');
+  const hint=document.getElementById('installHint');
+  const sheet=document.getElementById('iosSheet');
+  let deferredPrompt=null;
+
+  if(isStandalone){ card.style.display='none'; }
+
+  window.addEventListener('beforeinstallprompt',(e)=>{
+    e.preventDefault(); deferredPrompt=e;
+    btn.textContent='Instalar app';
+    hint.textContent='Acceso directo a pantalla completa y funciona sin conexion.';
+    card.style.display='block';
+  });
+  btn.addEventListener('click', async ()=>{
+    if(deferredPrompt){ deferredPrompt.prompt(); try{ await deferredPrompt.userChoice; }catch(_){}
+      deferredPrompt=null; card.style.display='none'; return; }
+    openIosSheet();
+  });
+  window.addEventListener('appinstalled',()=>{ deferredPrompt=null; card.style.display='none'; toast('Forja instalada ✓'); });
+
+  if(isIOS && !isStandalone){
+    btn.textContent='Como instalar';
+    hint.textContent='Anadela a tu pantalla de inicio para abrirla a pantalla completa.';
+    card.style.display='block';
+  }
+  if(isAndroid && !isStandalone){
+    setTimeout(()=>{
+      if(!deferredPrompt && card.style.display!=='block'){
+        btn.textContent='Como instalar';
+        hint.textContent='Menu del navegador (⋮) -> "Instalar app" / "Anadir a pantalla de inicio".';
+        document.getElementById('iosSheetIntro').textContent='Instala Forja desde el menu de Chrome para abrirla a pantalla completa.';
+        document.getElementById('iosSteps').innerHTML=
+          '<li>Abre el menu <b>⋮</b> arriba a la derecha en Chrome.</li>'+
+          '<li>Pulsa <b>Instalar app</b> (o <b>Anadir a pantalla de inicio</b>).</li>'+
+          '<li>Confirma. Forja aparecera como una app mas.</li>';
+        card.style.display='block';
+      }
+    },2500);
+  }
+  window.openIosSheet =()=>{ sheet.classList.add('show'); };
+  window.closeIosSheet=()=>{ sheet.classList.remove('show'); };
+})();
 </script>
 </body>
 </html>

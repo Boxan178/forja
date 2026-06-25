@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Forja — icono de marca. "F" industrial en azul acento con chispa/llama
+     ascendente, sobre fondo azul-noche. Fuente editable para regenerar PNGs.
+     ViewBox 512. Para maskable: encoge el grupo #mark a ~66% centrado. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#101726"/>
+      <stop offset="1" stop-color="#0B0F1A"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="66%" cy="32%" r="58%">
+      <stop offset="0" stop-color="#2E9BFF" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#2E9BFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="fbar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7CC4FF"/>
+      <stop offset="0.5" stop-color="#2E9BFF"/>
+      <stop offset="1" stop-color="#2E9BFF"/>
+    </linearGradient>
+    <linearGradient id="flame" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#EAF4FF"/>
+      <stop offset="0.55" stop-color="#7CC4FF"/>
+      <stop offset="1" stop-color="#2E9BFF"/>
+    </linearGradient>
+    <clipPath id="squircle">
+      <rect x="0" y="0" width="512" height="512" rx="112" ry="112"/>
+    </clipPath>
+  </defs>
+
+  <!-- Para "any" (no maskable): recorte squircle estilo Apple.
+       Para maskable: elimina clip-path y deja el fondo a sangre completa. -->
+  <g clip-path="url(#squircle)">
+    <rect x="0" y="0" width="512" height="512" fill="url(#bg)"/>
+    <rect x="0" y="0" width="512" height="512" fill="url(#glow)"/>
+
+    <g id="mark">
+      <!-- Llama / chispa ascendente, detras-derecha de la F -->
+      <path d="M338 56
+               C 322 120, 300 150, 300 196
+               C 300 232, 322 250, 360 250
+               C 398 250, 420 226, 420 190
+               C 420 150, 392 132, 380 104
+               C 372 138, 356 142, 354 116
+               C 352 96, 346 78, 338 56 Z"
+            fill="url(#flame)" opacity="0.92"/>
+
+      <!-- "F" industrial: stem + brazo superior + brazo medio -->
+      <path d="M154 82
+               H 380
+               V 159
+               H 231
+               V 236
+               H 328
+               V 308
+               H 231
+               V 440
+               H 154
+               Z"
+            fill="url(#fbar)"/>
+    </g>
+  </g>
+</svg>
