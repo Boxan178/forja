@@ -808,6 +808,7 @@ class ForjaEngine {
     this.state = ST.IDLE; this.prevState=null;
     this.i = 0; this.secLeft=0; this.phaseTotal=0; this.lastTick=0;
     this.restStartedAt=0; this.penaltyArmed=false; this.restTargetReached=false;
+    this._pausedAt=0; this._penaltyReturn=null;
     this._last3Fired=false; this._prepTickFired={};
     this.wakeLock=null; this._wakePending=false; this._timer=null;
     this.onState=()=>{}; this.onTick=()=>{}; this.onCue=()=>{};
@@ -834,14 +835,28 @@ class ForjaEngine {
     this._emitClosed(s); this._enterRest();
   }
   pause(){ if([ST.IDLE,ST.FINISHED,ST.PAUSED].includes(this.state)) return;
-    this.prevState=this.state; this.state=ST.PAUSED; this._emitState(); }
+    this.prevState=this.state; this._pausedAt=Date.now(); this.state=ST.PAUSED; this._emitState(); }
   resume(){ if(this.state!==ST.PAUSED) return;
-    this.lastTick=performance.now(); this.state=this.prevState; this.prevState=null; this._emitState(); }
+    const pausedSec=this._pausedAt?(Date.now()-this._pausedAt)/1000:0; this._pausedAt=0;
+    this.lastTick=performance.now();
+    // no penalizar el cronometro de descanso por el tiempo en pausa
+    if(this.prevState===ST.REST && this.restStartedAt){ this.restStartedAt+=pausedSec*1000; }
+    this.state=this.prevState; this.prevState=null; this._emitState();
+    // Penalizacion por VAGUEAR: pausar mas del limite dispara el mini-reto al volver
+    if(pausedSec>=this.cfg.longRestSec){ this._penaltyReturn=this.state; this._enterPenalty(pausedSec); }
+  }
   skip(){ if([ST.IDLE,ST.FINISHED].includes(this.state)) return; this._advance(); }
   skipRest(){ if(this.state===ST.REST) this._advance(); }
   back(){ if(this.i>0){ this.i--; this.penaltyArmed=false; this.restStartedAt=0; this.restTargetReached=false; this._enterPrep(); } }
-  resolvePenalty(){ if(this.state===ST.PENALTY){ this._cur()._penaltyDone=true; this._advance(); } }
-  skipPenalty(){ if(this.state===ST.PENALTY){ this._cur()._penaltyDone=false; this._advance(); } }
+  resolvePenalty(){ if(this.state===ST.PENALTY){ this._cur()._penaltyDone=true; this._afterPenalty(); } }
+  skipPenalty(){ if(this.state===ST.PENALTY){ this._cur()._penaltyDone=false; this._afterPenalty(); } }
+  _afterPenalty(){
+    // La penalizacion ahora viene de una pausa larga: al resolverla, volvemos al
+    // estado donde estabamos (no se salta serie). Si no hay retorno, avanzamos.
+    if(this._penaltyReturn){ const st=this._penaltyReturn; this._penaltyReturn=null;
+      this.lastTick=performance.now(); this.state=st; this._emitState(); }
+    else { this._advance(); }
+  }
   stop(){
     clearInterval(this._timer); this._timer=null;
     document.removeEventListener('visibilitychange', this._onVis);
@@ -871,13 +886,14 @@ class ForjaEngine {
     this.restTargetReached=false; // se marca cuando secLeft llega a 0 (objetivo cumplido)
     this.state=ST.REST; this._emitState();
   }
-  _enterPenalty(){
+  _enterPenalty(pausedSec){
     const s=this._cur(); s._penaltyTriggered=true;
     const challenge=PENALTY_POOL[Math.floor(Math.random()*PENALTY_POOL.length)];
     s._penaltyChallenge=challenge;
     this.cue.play('penalty'); this.onCue('penalty');
     this.state=ST.PENALTY; this._emitState();
-    this.onPenalty({ challenge, restSec:Math.round((Date.now()-this.restStartedAt)/1000) });
+    const secs=typeof pausedSec==='number'?Math.round(pausedSec):0;
+    this.onPenalty({ challenge, pausedSec:secs });
   }
   _finish(){
     clearInterval(this._timer); this._timer=null;
@@ -945,15 +961,11 @@ class ForjaEngine {
       // series largas / rest-pause / dejar la pantalla falseen los datos.
       this._emitTick();
     } else if(this.state===ST.REST){
-      const elapsed=(Date.now()-this.restStartedAt)/1000;
-      // El objetivo de descanso solo cuenta hacia abajo hasta 0. Una vez cumplido,
-      // NO se auto-avanza: el cronometro pasa a "descanso extra" contando hacia arriba
-      // para permitir que elapsed alcance longRestSec y se arme la penalizacion.
-      if(!this.restTargetReached){
-        this.secLeft-=dt;
-        if(this.secLeft<=0){ this.secLeft=0; this.restTargetReached=true; this.cue.play('restend'); this.onCue('restend'); }
-      }
-      if(!this.penaltyArmed && elapsed>=this.cfg.longRestSec){ this.penaltyArmed=true; this._enterPenalty(); return; }
+      // Manos libres: el descanso cuenta hacia abajo y al llegar a 0 SALTA SOLO a la
+      // siguiente serie. La penalizacion ya no depende del descanso largo, sino de
+      // pausar el entreno demasiado tiempo (ver pause/resume).
+      this.secLeft-=dt;
+      if(this.secLeft<=0){ this.secLeft=0; this.cue.play('restend'); this.onCue('restend'); this._advance(); return; }
       this._emitTick();
     }
   }
@@ -1197,9 +1209,9 @@ function snapToVM(snap){
     case ST.PENALTY:{
       const ch=snap.penalty||{t:'Una serie más',sub:''};
       return {...base, phase:'penalty', phaseLabel:'Penalización',
-        bigNumber:'⏳', numSub:'descanso largo',
+        bigNumber:'⏳', numSub:'pausa larga',
         ring:{pct:1, tone:'warn', pulse:true},
-        penaltyText:`Te pasaste de descanso: ${ch.t}. ${ch.sub||''}`,
+        penaltyText:`Te pasaste pausando: ${ch.t}. ${ch.sub||''}`,
         primary:{label:'Acepto el reto ✓',tone:'warn'}, showNav:true };
     }
     default:
@@ -1263,7 +1275,19 @@ async function startGuided(){
     }
   };
 
-  ENGINE.onPenalty = ch => { /* la UI ya pinta el reto en el VM (phase penalty) */ };
+  ENGINE.onPenalty = async ch => {
+    // Penalizacion por pausa larga: registra el evento (degrada si la tabla no existe)
+    try{
+      await sb.from('rest_penalty_events').insert({
+        workout_id:CUR_WORKOUT?CUR_WORKOUT.id:null,
+        set_id:null,
+        actual_rest_seconds:ch.pausedSec||0,
+        limit_seconds:CFG.rest_penalty_seconds,
+        challenge_text:(ch.challenge&&ch.challenge.t)||(CFG.prefs.penalty_type==='extra_set'?'Una serie más':'10 flexiones'),
+        completed:false
+      });
+    }catch(_){}
+  };
 
   ENGINE.onFinished = async summ => {
     Player.showSummary('🔥', `${summ.completed}/${summ.totalSteps} series completadas. Buen trabajo.`, ()=>closeGuided());
