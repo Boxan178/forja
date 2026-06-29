@@ -35,6 +35,16 @@ El cerebro IA (**Agents SDK**) que asistirá/programará los entrenos vivirá en
 - **Biblioteca**: `trainer.exercises` (153 ejercicios: fuerza + estiramientos + movilidad). Fuente curada con prompts en [`db/exercise-library.json`](db/exercise-library.json). Columna `kind` ('fuerza' | 'estiramiento' | 'movilidad' | 'cardio'), migración en `db/migration-v3.sql`.
 - **Animación por ejercicio**: loop que funde frame inicial → frame final (efecto GIF). Pipeline: Flow (`flow-bridge`) genera los 2 frames → `tools/exercise-anim/make_anim.py` (ffmpeg `xfade` + ping-pong) → MP4 → `exercises.demo_video_url`. Ver [tools/exercise-anim/README.md](tools/exercise-anim/README.md).
 
+## Generador de sesión (Fase 1.5 — reglas, en cliente)
+
+No hay rutina pre-asignada por día. El **check-in monta la sesión al vuelo** desde los 153 ejercicios: pulsas Empezar → check-in (energía/tiempo/molestia) → la app crea el `workouts` de hoy + sus `workout_sets` y entra a entrenar. Lógica anti-TDA (en `genBuildPlan`, `index.html`):
+
+- **Combos NO clásicos** rotativos (empuje+cuádriceps, tirón+femoral, pierna+hombro…).
+- **Anti-repetición**: evita los grupos de las últimas 2 sesiones y los ejercicios exactos recientes → distinto cada día/semana.
+- **Dimensionado** por tiempo/energía; **evita la zona con molestia**; calentamiento de movilidad + estiramiento final.
+
+Es un puente determinista; lo sustituirá el **Agents SDK** (Fase 2, VPS) sin cambiar el resto.
+
 ## Sesiones: registrar / descartar
 
 - Al terminar (fin natural o botón **Terminar**) NO se pregunta si completaste: se muestra el resumen y se **registra** al pulsar Hecho.

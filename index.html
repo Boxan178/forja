@@ -968,6 +968,112 @@ async function preloadCheckinContext(){
   }catch(_){ TRAINED_WEEK=0; }
 }
 
+/* ====================================================================
+   GENERADOR DE SESIÓN (Fase 1.5 — reglas, en cliente)
+   El check-in monta la sesión del día desde el catálogo + histórico.
+   Anti-TDA: combos NO clásicos, distinto cada día, evita los grupos de
+   las últimas 2 sesiones y los ejercicios exactos recientes. Dimensiona
+   por tiempo/energía y evita la zona con molestia. Calentamiento de
+   movilidad + estiramiento final. Sustituible por el Agents SDK (Fase 2, VPS).
+   ==================================================================== */
+const GEN_ARCHETYPES = [
+  { label:'Empuje + cuádriceps',    groups:['Pecho','Hombro','Triceps','Cuadriceps'] },
+  { label:'Tirón + femoral',        groups:['Espalda','Biceps','Femoral','Gluteo'] },
+  { label:'Pierna + hombro',        groups:['Cuadriceps','Femoral','Gluteo','Hombro'] },
+  { label:'Torso completo',         groups:['Pecho','Espalda','Core','Trapecio'] },
+  { label:'Brazos + core + gemelo', groups:['Biceps','Triceps','Core','Gemelo','Antebrazo'] },
+  { label:'Mezcla total',           groups:['Espalda','Cuadriceps','Hombro','Core'] },
+];
+let GEN_CATALOG=null;
+async function genLoadCatalog(){
+  if(GEN_CATALOG) return GEN_CATALOG;
+  const {data}=await sb.from('exercises')
+    .select('id,name,muscle_group,equipment,kind,default_rest_seconds');
+  GEN_CATALOG=data||[];
+  return GEN_CATALOG;
+}
+async function genRecentContext(nWorkouts){
+  const out={ groups:new Set(), exIds:new Set(), labels:[] };
+  try{
+    const {data:ws}=await sb.from('workouts').select('id,day_label')
+      .neq('status','discarded').order('date',{ascending:false}).order('id',{ascending:false}).limit(nWorkouts);
+    if(ws&&ws.length){
+      ws.forEach(w=>{ if(w.day_label) out.labels.push(w.day_label); });
+      const ids=ws.map(w=>w.id);
+      const {data:ss}=await sb.from('workout_sets')
+        .select('exercise_id,exercises(muscle_group)').in('workout_id',ids);
+      (ss||[]).forEach(s=>{ out.exIds.add(s.exercise_id);
+        const g=s.exercises&&s.exercises.muscle_group; if(g) out.groups.add(g); });
+    }
+  }catch(_){}
+  return out;
+}
+function genShuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function genSize(time, energy){
+  let n = time<=20?3 : time<=35?4 : time<=50?5 : 6;
+  if(energy && energy<=2) n=Math.max(3,n-1);
+  return n;
+}
+function genBuildPlan(catalog, ctx){
+  const sore=(ctx.sore&&ctx.sore!=='ninguna')?String(ctx.sore).toLowerCase():null;
+  const okGroup=g=>!sore || !String(g).toLowerCase().includes(sore);
+  const ofKind=k=>catalog.filter(e=>e.kind===k);
+  const fuerza=ofKind('fuerza').filter(e=>okGroup(e.muscle_group));
+  const movil=ofKind('movilidad');
+  const estir=ofKind('estiramiento');
+  // arquetipo evitando el de la última sesión
+  let archetypes=GEN_ARCHETYPES.filter(a=>a.label!==(ctx.recent.labels[0]||''));
+  if(!archetypes.length) archetypes=GEN_ARCHETYPES;
+  const arch=genShuffle(archetypes)[0];
+  const n=genSize(ctx.time||60, ctx.energy||3);
+  const picked=[]; const usedEx=new Set();
+  for(const g of genShuffle(arch.groups)){
+    if(picked.length>=n) break;
+    let opts=fuerza.filter(e=>e.muscle_group===g && !usedEx.has(e.id) && !ctx.recent.exIds.has(e.id));
+    if(!opts.length) opts=fuerza.filter(e=>e.muscle_group===g && !usedEx.has(e.id));
+    if(opts.length){ const e=genShuffle(opts)[0]; picked.push(e); usedEx.add(e.id); }
+  }
+  while(picked.length<n){
+    let opts=fuerza.filter(e=>arch.groups.includes(e.muscle_group) && !usedEx.has(e.id) && !ctx.recent.exIds.has(e.id));
+    if(!opts.length) opts=fuerza.filter(e=>arch.groups.includes(e.muscle_group) && !usedEx.has(e.id));
+    if(!opts.length) break;
+    const e=genShuffle(opts)[0]; picked.push(e); usedEx.add(e.id);
+  }
+  if(!picked.length) return null;
+  const warm=movil.length?genShuffle(movil)[0]:null;
+  const cool=estir.length?genShuffle(estir)[0]:null;
+  const rows=[]; let order=0;
+  const SETS_PER=(ctx.energy&&ctx.energy<=2)?2:3;
+  // claves UNIFORMES en todas las filas: PostgREST exige el mismo set de columnas
+  // en un insert múltiple (null donde no aplica).
+  const push=o=>rows.push({ exercise_id:o.exercise_id, set_type:o.set_type, mode:o.mode,
+    reps:o.reps??null, work_seconds:o.work_seconds??null, set_number:o.set_number,
+    set_order:o.set_order, target_rest_seconds:o.target_rest_seconds??null });
+  if(warm) push({ exercise_id:warm.id, set_type:'warmup', mode:'time', work_seconds:40, set_number:1, set_order:order++, target_rest_seconds:30 });
+  picked.forEach(e=>{
+    const rest=e.default_rest_seconds||120;
+    for(let i=1;i<=SETS_PER;i++) push({ exercise_id:e.id, set_type:'working', mode:'reps', reps:10, set_number:i, set_order:order++, target_rest_seconds:rest });
+  });
+  if(cool) push({ exercise_id:cool.id, set_type:'working', mode:'time', work_seconds:30, set_number:1, set_order:order++, target_rest_seconds:20 });
+  return { label:arch.label, rows };
+}
+/* crea (si no existe) el workout de hoy y recarga CUR_*; devuelve 'existing'|'created'|false */
+async function ensureTodaySession(verdict){
+  if(CUR_WORKOUT && CUR_SETS.length) return 'existing';
+  const catalog=await genLoadCatalog();
+  const recent=await genRecentContext(2);
+  const plan=genBuildPlan(catalog, { time:ci.time||60, energy:ci.energy||3, sore:ci.sore||'ninguna', recent });
+  if(!plan){ toast('No pude montar la sesión'); return false; }
+  const {data:win,error:we}=await sb.from('workouts')
+    .insert({date:todayISO, day_label:plan.label, status:'active'}).select('id').single();
+  if(we||!win){ toast('Error creando la sesión'); return false; }
+  const rows=plan.rows.map(r=>({...r, workout_id:win.id, done:false}));
+  const {error:se}=await sb.from('workout_sets').insert(rows);
+  if(se){ toast('Error creando las series'); return false; }
+  await loadSession();
+  return CUR_SETS.length ? 'created' : false;
+}
+
 /* ----- popup check-in: abre antes de entrenar, encadena a startGuided ----- */
 async function openCheckin(){
   document.getElementById('checkinModal').classList.add('show');
@@ -984,7 +1090,7 @@ function closeCheckin(){ document.getElementById('checkinModal').classList.remov
 window.closeCheckin=closeCheckin;
 window.openCheckin=openCheckin;
 document.getElementById('ci_close').onclick=closeCheckin;
-document.getElementById('ci_skip').onclick=()=>{ closeCheckin(); startGuided(); };
+document.getElementById('ci_skip').onclick=async()=>{ closeCheckin(); const r=await ensureTodaySession(LAST_VERDICT); if(r) startGuided(); };
 
 /* persiste el check-in con la recuperación activa que DECIDE el recomendador
    (degrada si active_recovery no existe). */
@@ -1009,8 +1115,10 @@ document.getElementById('ci_save').onclick=async()=>{
     return;
   }
   closeCheckin();
-  const tunedSets=applyRecommendation(CUR_SETS, v);
-  startGuided({ sets: tunedSets });
+  const r=await ensureTodaySession(v);
+  if(!r) return;
+  if(r==='created') startGuided();                         // el generador ya dimensionó por tiempo/energía
+  else startGuided({ sets: applyRecommendation(CUR_SETS, v) });
 };
 
 /* ====================================================================
@@ -1156,10 +1264,11 @@ function renderHomeHero(){
   const img=document.getElementById('heroImg');
   if(!hero) return;
   if(!CUR_WORKOUT || !CUR_SETS.length){
-    hero.disabled=true;
-    title.textContent='Sin sesión hoy';
-    meta.textContent='No hay entreno programado · pídeselo al coach';
-    img.style.backgroundImage='linear-gradient(160deg,#1b2333,#0b0d12)';
+    hero.disabled=false;
+    title.textContent='Monta tu sesión de hoy';
+    meta.textContent='Pulsa para el check-in · te preparo el entreno';
+    img.style.backgroundImage=`url('${HERO_IMG}'), linear-gradient(160deg,#1b2333,#0b0d12)`;
+    hero.onclick=()=>openCheckin();
     return;
   }
   hero.disabled=false;
