@@ -756,6 +756,7 @@
     <div class="pl-phase done">Sesión terminada</div>
     <div class="pl-sum-big" id="pl_sum_big">🔥</div>
     <div class="pl-sum-line" id="pl_sum_line"></div>
+    <button class="pl-go" id="pl_discard" style="display:none;margin-top:14px;background:transparent;border:1px solid rgba(226,85,79,.55);color:#e2554f;font-size:14px">Descartar · no registrar</button>
   </div>
 
   <div class="pl2-foot">
@@ -962,7 +963,7 @@ async function preloadCheckinContext(){
   const monday=(()=>{ const d=new Date(todayISO+'T00:00:00'); const dow=(d.getDay()+6)%7; d.setDate(d.getDate()-dow); return d; })();
   const mondayISO=dayKey(monday);
   try{
-    const {data}=await sb.from('workouts').select('date').gte('date',mondayISO).lte('date',todayISO);
+    const {data}=await sb.from('workouts').select('date').neq('status','discarded').gte('date',mondayISO).lte('date',todayISO);
     TRAINED_WEEK=new Set((data||[]).map(w=>dayKey(w.date))).size;
   }catch(_){ TRAINED_WEEK=0; }
 }
@@ -1086,9 +1087,10 @@ async function saveSetNow(id,patch){
 
 let CUR_WORKOUT=null;   // workout de hoy
 let CUR_SETS=[];        // sets de hoy con join exercises
+let SESSION_DONE=0, SESSION_TOTAL=0;   // series cerradas / pasos del plan en la sesión guiada
 
 async function loadSession(){
-  const {data:w}=await sb.from('workouts').select('*').eq('date',todayISO).order('id',{ascending:false}).limit(1);
+  const {data:w}=await sb.from('workouts').select('*').eq('date',todayISO).neq('status','discarded').order('id',{ascending:false}).limit(1);
   const title=document.getElementById('session_title');const cont=document.getElementById('sets');
   if(!w||!w.length){
     CUR_WORKOUT=null;CUR_SETS=[];
@@ -1119,7 +1121,7 @@ async function renderHomeStreak(){
   const mondayISO=dayKey(monday);
   let doneSet=new Set();
   try{
-    const {data}=await sb.from('workouts').select('date').gte('date',mondayISO).lte('date',todayISO);
+    const {data}=await sb.from('workouts').select('date').neq('status','discarded').gte('date',mondayISO).lte('date',todayISO);
     (data||[]).forEach(w=>doneSet.add(dayKey(w.date)));
   }catch(_){}
   const doneThisWeek=doneSet.size;
@@ -1772,14 +1774,20 @@ const Player = (() => {
     if(repEl && repEl.value!=='') out.reps=parseInt(repEl.value,10);
     return out;
   }
-  function showSummary(big, line, onClose){
+  function showSummary(big, line, onClose, opts){
+    opts=opts||{};
     el.pl_mid.style.display='none';
     el.pl_rail.style.display='none';
     el.pl_subrow.style.display='none';
     el.pl_summary.classList.add('show');
     el.pl_sum_big.textContent=big; el.pl_sum_line.textContent=line;
-    el.pl_go.className='pl-go ok'; el.pl_go.textContent='Cerrar'; el.pl_go.onclick=onClose;
+    el.pl_go.className='pl-go ok'; el.pl_go.textContent=opts.closeLabel||'Hecho'; el.pl_go.onclick=onClose;
     el.pl_prog.textContent='✓';
+    const dz=document.getElementById('pl_discard');
+    if(dz){
+      if(opts.onDiscard){ dz.style.display=''; dz.textContent=opts.discardLabel||'Descartar · no registrar'; dz.onclick=opts.onDiscard; }
+      else { dz.style.display='none'; dz.onclick=null; }
+    }
   }
   return { init, open, close, render, swap, showSummary, readActiveInputs };
 })();
@@ -1989,6 +1997,7 @@ async function startGuided(opts){
     toast('Volumen recortado para hoy');
   }
   const plan=planFromSets(planSets);
+  SESSION_DONE=0; SESSION_TOTAL=Array.isArray(plan)?plan.length:planSets.length;
   // PREVIA: 1 query cacheada con el ultimo peso×reps historico de cada ejercicio del plan
   await loadPreviasFor([...new Set(planSets.map(s=>s.exercise_id))]);
   SESSION_T0=Date.now();
@@ -2005,6 +2014,7 @@ async function startGuided(opts){
   ENGINE.onTick  = snap => paintFromSnap(snap, false);
 
   ENGINE.onSetClosed = async rec => {
+    SESSION_DONE++;
     // persistir la serie cerrada (autosave inmediato)
     const patch={ weight_kg:rec.weight, reps:rec.reps, done:true };
     if(SCHEMA.set_type && rec.setType) patch.set_type=rec.setType;
@@ -2054,8 +2064,7 @@ async function startGuided(opts){
   };
 
   ENGINE.onFinished = async summ => {
-    Player.showSummary('🔥', `${summ.completed}/${summ.totalSteps} series completadas. Buen trabajo.`, ()=>closeGuided());
-    await onSessionFinished(summ);
+    presentEndSheet(summ.completed, summ.totalSteps);
   };
 
   // wiring de los botones del player (una vez)
@@ -2066,7 +2075,7 @@ async function startGuided(opts){
                      else {ENGINE.pause();document.getElementById('pl_pause').textContent='▶';} },
     onSkip:    ()=>{ if(ENGINE) ENGINE.skip(); },
     onBack:    ()=>{ if(ENGINE) ENGINE.back(); },
-    onExit:    ()=>closeGuided(),
+    onExit:    ()=>handleTerminar(),
     // ✨ sobrecarga progresiva: escribe la sugerencia en los inputs KG/REPES de la fila activa
     onSpark:   ()=>{
       if(!ENGINE) return;
@@ -2124,6 +2133,47 @@ async function onSessionFinished(summ){
   await bumpStreak();
   await evaluateAchievementsLive();
   renderGamification();
+}
+
+/* ===== Fin de sesión: resumen + registrar / descartar (prueba o incompleto) =====
+   No se pregunta "¿has completado?": se muestra el resumen y se registra al pulsar
+   Hecho. El botón Descartar deshace todo (revierte las series guardadas y marca el
+   workout status='discarded' → no cuenta como día entrenado en racha/semana). */
+function presentEndSheet(done, total){
+  const did = (done||0) > 0;
+  const line = did
+    ? `${done}/${total} series completadas. Pulsa Hecho para registrar.`
+    : 'No completaste ninguna serie. ¿Era una prueba?';
+  Player.showSummary(did ? '🔥' : '🧪', line, ()=>registerSession(done, total), {
+    onDiscard: ()=>discardSession(),
+    discardLabel: did ? 'Descartar · no registrar' : 'Descartar prueba',
+    closeLabel: did ? 'Hecho' : 'Registrar igualmente'
+  });
+}
+
+async function registerSession(done, total){
+  try{ if(CUR_WORKOUT) await sb.from('workouts').update({status:'completed'}).eq('id',CUR_WORKOUT.id); }catch(_){}
+  await onSessionFinished({completed:done||0, totalSteps:total||0});
+  toast('Entreno registrado ✓');
+  closeGuided();
+}
+
+async function discardSession(){
+  try{
+    if(CUR_WORKOUT){
+      await sb.from('workout_sets').update({done:false, weight_kg:null, reps:null}).eq('workout_id',CUR_WORKOUT.id);
+      await sb.from('workouts').update({status:'discarded'}).eq('id',CUR_WORKOUT.id);
+      try{ await sb.from('rest_penalty_events').delete().eq('workout_id',CUR_WORKOUT.id); }catch(_){}
+    }
+  }catch(_){}
+  toast('Entreno descartado · no se registró');
+  closeGuided();
+}
+
+/* "Terminar" a mitad: no cierra en seco, muestra el resumen con opción de descartar */
+function handleTerminar(){
+  if(ENGINE) ENGINE.stop();
+  presentEndSheet(SESSION_DONE, SESSION_TOTAL);
 }
 
 /* ====================================================================

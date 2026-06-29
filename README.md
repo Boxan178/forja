@@ -30,6 +30,16 @@ El cerebro IA (**Agents SDK**) que asistirá/programará los entrenos vivirá en
 - `db/migration-v2.sql` — migración de esquema Supabase (`trainer`).
 - `_ref/symmetry/` — capturas de referencia del rediseño v3.
 
+## Biblioteca de ejercicios y medios
+
+- **Biblioteca**: `trainer.exercises` (153 ejercicios: fuerza + estiramientos + movilidad). Fuente curada con prompts en [`db/exercise-library.json`](db/exercise-library.json). Columna `kind` ('fuerza' | 'estiramiento' | 'movilidad' | 'cardio'), migración en `db/migration-v3.sql`.
+- **Animación por ejercicio**: loop que funde frame inicial → frame final (efecto GIF). Pipeline: Flow (`flow-bridge`) genera los 2 frames → `tools/exercise-anim/make_anim.py` (ffmpeg `xfade` + ping-pong) → MP4 → `exercises.demo_video_url`. Ver [tools/exercise-anim/README.md](tools/exercise-anim/README.md).
+
+## Sesiones: registrar / descartar
+
+- Al terminar (fin natural o botón **Terminar**) NO se pregunta si completaste: se muestra el resumen y se **registra** al pulsar Hecho.
+- Botón **Descartar** para sesiones de prueba o incompletas: revierte las series guardadas y marca `workouts.status='discarded'` → no cuenta como día entrenado (las queries de racha/semana filtran `status <> 'discarded'`). Migración en `db/migration-v3.sql`.
+
 ## Notas
 
 - Migrado a `lab/` (workspace J.A.R.V.I.S.) desde `C:\dev\forja\` el 2026-06-25, conservando `.git` y el remoto. GitHub Pages sigue desplegando sin cambios.
