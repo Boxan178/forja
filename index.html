@@ -456,6 +456,8 @@
   .pl2-scroll{flex:1;overflow-y:auto;padding:4px 16px 8px;min-height:0;max-width:540px;width:100%;margin:0 auto}
   .pl2-visual{position:relative;border-radius:22px;background:radial-gradient(120% 90% at 50% 0%,#15151B,#0A0A0C);min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;margin-bottom:14px}
   .pl2-imgph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:64px;opacity:.07;pointer-events:none}
+  .pl-demo{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:0;opacity:0;transition:opacity .35s ease;pointer-events:none;border-radius:22px}
+  .pl-demo.on{opacity:.92}
   .pl2-visual{transition:opacity .22s ease, transform .22s ease}
   .pl2-visual.swapping{opacity:0;transform:translateY(8px)}
   .pl2-visual .pl-ring{width:230px;height:230px;max-width:64vw;max-height:64vw;z-index:1}
@@ -712,7 +714,8 @@
   <div class="pl2-rail" id="pl_rail"></div>           <!-- carrusel horizontal de ejercicios -->
   <div class="pl2-scroll" id="pl_mid">
     <div class="pl2-visual" id="pl_visual">           <!-- area visual grande: anillo + placeholder Flow -->
-      <div class="pl2-imgph" id="pl_imgph"><span>🏋️</span></div>  <!-- HUECO imagen Flow Fase2 -->
+      <div class="pl2-imgph" id="pl_imgph"><span>🏋️</span></div>  <!-- placeholder si el ejercicio no tiene demo -->
+      <video class="pl-demo" id="pl_demo" muted loop autoplay playsinline preload="auto"></video>
       <div class="pl-phase" id="pl_phase">Prepárate</div>
       <div class="pl-ring" id="pl_ring">
         <svg viewBox="0 0 260 260">
@@ -1186,6 +1189,7 @@ async function saveSetNow(id,patch){
 let CUR_WORKOUT=null;   // workout de hoy
 let CUR_SETS=[];        // sets de hoy con join exercises
 let SESSION_DONE=0, SESSION_TOTAL=0;   // series cerradas / pasos del plan en la sesión guiada
+let EX_DEMO={};                         // exercise_id -> demo_video_url (vídeo del ejercicio)
 
 async function loadSession(){
   const {data:w}=await sb.from('workouts').select('*').eq('date',todayISO).neq('status','discarded').order('id',{ascending:false}).limit(1);
@@ -2069,6 +2073,20 @@ function snapToVM(snap){
 function paintFromSnap(snap, withSwap){
   const vm=snapToVM(snap);
   if(withSwap) Player.swap(()=>Player.render(vm)); else Player.render(vm);
+  updateDemo(snap);
+}
+/* muestra el vídeo demo del ejercicio activo en el área visual (detrás del anillo) */
+function updateDemo(snap){
+  const v=document.getElementById('pl_demo'), ph=document.getElementById('pl_imgph');
+  if(!v) return;
+  const exId=(snap&&snap.step)?snap.step.exId:null;
+  const url=(exId!=null)?EX_DEMO[exId]:null;
+  if(url){
+    if(v.getAttribute('src')!==url){ v.setAttribute('src',url); try{ v.load(); const p=v.play&&v.play(); if(p&&p.catch)p.catch(()=>{}); }catch(_){} }
+    v.classList.add('on'); if(ph) ph.style.display='none';
+  } else {
+    v.classList.remove('on'); if(ph) ph.style.display='';
+  }
 }
 
 /* recorta la ÚLTIMA serie efectiva no hecha de cada ejercicio (día rojo) */
@@ -2097,6 +2115,7 @@ async function startGuided(opts){
   }
   const plan=planFromSets(planSets);
   SESSION_DONE=0; SESSION_TOTAL=Array.isArray(plan)?plan.length:planSets.length;
+  EX_DEMO={}; CUR_SETS.forEach(s=>{ const u=s.exercises&&s.exercises.demo_video_url; if(u) EX_DEMO[s.exercise_id]=u; });
   // PREVIA: 1 query cacheada con el ultimo peso×reps historico de cada ejercicio del plan
   await loadPreviasFor([...new Set(planSets.map(s=>s.exercise_id))]);
   SESSION_T0=Date.now();
