@@ -648,18 +648,10 @@
       <div class="mclose" id="ci_close" aria-label="Cerrar">✕</div>
     </div>
     <div class="sub" style="margin-bottom:10px">Ajusto la sesión a tu energía antes de arrancar.</div>
-    <div class="grid4">
-      <div>
-        <div class="lbl">Horas de sueño</div>
-        <input class="ipt" id="ci_sleep" inputmode="decimal" placeholder="ej. 5.5" />
-      </div>
-      <div>
-        <div class="lbl">Tiempo hoy</div>
-        <div class="seg" id="ci_time">
-          <button data-v="30">30</button><button data-v="45">45</button>
-          <button data-v="60">60</button><button data-v="75">75</button>
-        </div>
-      </div>
+    <div class="lbl">Tiempo hoy</div>
+    <div class="seg" id="ci_time">
+      <button data-v="30">30</button><button data-v="45">45</button>
+      <button data-v="60">60</button><button data-v="75">75</button>
     </div>
     <div class="lbl" style="margin-top:12px">Energía / ganas</div>
     <div class="seg" id="ci_energy">
@@ -831,7 +823,6 @@ let ci={sleep:null,time:null,energy:null,sore:'ninguna',recovery:''};
 seg('ci_time',v=>{ci.time=+v;recomputeCheckin();});
 seg('ci_energy',v=>{ci.energy=+v;recomputeCheckin();});
 seg('ci_sore',v=>{ci.sore=v;recomputeCheckin();});
-document.getElementById('ci_sleep').oninput=e=>ci.sleep=parseFloat(e.target.value)||null;
 
 /* Arranca en null = "desconocido". Una sonda previa (probeCheckinSchema) lo fija
    a true/false ANTES de cualquier lectura, para no disparar un 400 que tumbe
@@ -1082,7 +1073,6 @@ async function openCheckin(){
   ci={sleep:null,time:null,energy:null,sore:'ninguna',recovery:''};
   document.querySelectorAll('#ci_time button,#ci_energy button').forEach(b=>b.classList.remove('sel'));
   document.querySelectorAll('#ci_sore button').forEach(b=>b.classList.toggle('sel',b.dataset.v==='ninguna'));
-  document.getElementById('ci_sleep').value='';
   await preloadCheckinContext();
   recomputeCheckin();
 }
@@ -1096,7 +1086,7 @@ document.getElementById('ci_skip').onclick=async()=>{ closeCheckin(); const r=aw
    (degrada si active_recovery no existe). */
 async function persistCheckin(v){
   await probeCheckinSchema();
-  const base={date:todayISO,sleep_hours:ci.sleep,energy:ci.energy,soreness:ci.sore,time_available:ci.time};
+  const base={date:todayISO,energy:ci.energy,soreness:ci.sore,time_available:ci.time};
   const rec=v&&v.activeRecovery;
   const payload=(CHECKIN_HAS_RECOVERY && rec) ? {...base, active_recovery:rec} : base;
   let {error}=await sb.from('checkins').insert(payload);
